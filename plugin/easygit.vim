@@ -15,14 +15,14 @@ endfunction
 function! s:Edit(args)
   let option = {
         \ "all": 1,
-        \ "edit": get(g:, 'easygit_edit_command', 'edit'),
+        \ "edit": get(g:, 'easygit_edit_edit_command', 'edit'),
         \ "fold": get(g:, 'easygit_edit_fold', 1),
         \}
   call easygit#show(a:args, option)
 endfunction
 
 function! s:DiffShow(args)
-  let edit = get(g:, 'easygit_diff_edit', 'edit')
+  let edit = get(g:, 'easygit_diff_edit_command', 'edit')
   call easygit#diffShow(a:args, edit)
 endfunction
 
@@ -62,6 +62,7 @@ augroup easygit
 augroup END
 
 " TODO use user complete from git ls
+" TODO gremove gmove
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                      :call easygit#cd(0)
   command! -nargs=0 Glcd                     :call easygit#cd(1)

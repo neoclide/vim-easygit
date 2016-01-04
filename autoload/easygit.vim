@@ -73,7 +73,6 @@ function! easygit#show(args, option) abort
       \. ' --git-dir=' . gitdir
       \. ' show --no-color ' . format . a:args . ' -- ' . file
   endif
-  let g:command = command
   let opt = deepcopy(a:option)
   let opt.title = '__easygit__show__' . s:findObject(a:args)
         \. (showall ? '' : '/' . fnamemodify(file, ':r'))
@@ -321,17 +320,7 @@ function! s:blameHighlight() abort
       continue
     endif
     let seen[hash] = 1
-    if &t_Co > 16 && exists('g:CSApprox_loaded')
-          \ && empty(get(s:hash_colors, hash))
-      let [s, r, g, b; __] = map(matchlist(hash, '\(\x\x\)\(\x\x\)\(\x\x\)'), 'str2nr(v:val,16)')
-      let color = csapprox#per_component#Approximate(r, g, b)
-      if color == 16 && &background ==# 'dark'
-        let color = 8
-      endif
-      let s:hash_colors[hash] = ' ctermfg='.color
-    else
-      let s:hash_colors[hash] = ''
-    endif
+    let s:hash_colors[hash] = ''
     exe 'syn match EasygitblameHash'.hash.'       "\%(^\^\=\)\@<='.hash.'\x\{1,34\}\>" nextgroup=EasygitblameAnnotation,EasygitblameOriginalLineNumber,fugitiveblameOriginalFile skipwhite'
   endfor
   call s:RehighlightBlame()
