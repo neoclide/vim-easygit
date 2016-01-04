@@ -61,8 +61,9 @@ augroup easygit
   autocmd BufWinLeave * call s:Onbufleave()
 augroup END
 
-" TODO use user complete from git ls
 " TODO gremove gmove
+" TODO command option complete and git files for Gcommit
+" TODO git branch complete for Gedit/Gco
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                      :call easygit#cd(0)
   command! -nargs=0 Glcd                     :call easygit#cd(1)

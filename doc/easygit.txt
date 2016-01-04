@@ -1,0 +1,327 @@
+*easygit.txt*	a feature less git wrapper for vim
+
+       @@@@@@@@   @@@@@@    @@@@@@   @@@ @@@   @@@@@@@@  @@@  @@@@@@@ ~
+       @@@@@@@@  @@@@@@@@  @@@@@@@   @@@ @@@  @@@@@@@@@  @@@  @@@@@@@ ~
+       @@!       @@!  @@@  !@@       @@! !@@  !@@        @@!    @@!   ~
+       !@!       !@!  @!@  !@!       !@! @!!  !@!        !@!    !@!   ~
+       @!!!:!    @!@!@!@!  !!@@!!     !@!@!   !@! @!@!@  !!@    @!!   ~
+       !!!!!:    !!!@!!!!   !!@!!!     @!!!   !!! !!@!!  !!!    !!!   ~
+       !!:       !!:  !!!       !:!    !!:    :!!   !!:  !!:    !!:   ~
+       :!:       :!:  !:!      !:!     :!:    :!:   !::  :!:    :!:   ~
+       :: ::::  ::   :::  :::: ::      ::     ::: ::::   ::     ::   ~
+       : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
+                                     ~
+Author		: Qiming Zhao <chemzqm@gmail.com>
+Version		: 0.1.0
+Last Change	: Jan 04 2016
+
+License : MIT license {{{
+
+  Copyright (c) 2016 chemzqm@gmail.com
+
+  Permission is hereby granted, free of charge, to any person obtaining
+  a copy of this software and associated documentation files (the
+  "Software"), to deal in the Software without restriction, including
+  without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to
+  permit persons to whom the Software is furnished to do so, subject to
+  the following conditions:
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+  EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+  MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+  CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+  TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+  SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+}}}
+
+==============================================================================
+CONTENTS				*easygit-contents*
+
+INTRODUCTION		|easygit-introduction|
+PREREQUIREMENT		|easygit-prerequirement|
+PHILOSOPHY		|easygit-philosophy|
+INSTALLATION		|easygit-installation|
+INTERFACE		|easygit-interface|
+  COMMANDS			|easygit-commands|
+  VARIABLES			|easygit-variables|
+  KEYMAPING			|easygit-keymaping|
+  FUNCTIONS			|easygit-functions|
+CHANGELOG		|easygit-changelog|
+TODO			|easygit-todo|
+
+==============================================================================
+INTRODUCTION				*easygit-introduction*
+
+Easygit's original goal was to replace https://github.com/tpope/vim-fugitive for
+myself, because I found the code of vim-fugitive too hard to extend from, and
+many of the features I don't need. To be honest, easygit borrows some code from
+vim-fugitive, thanks for open source :)
+
+This is a fundamental implementation, some features may not works in systems
+like windows, and sometimes it may not works as expected, but I've tried hard
+to make it not break anything, and behaviour friendly to user.  Let me know if
+you got any problem https://github.com/chemzqm/easygit/issues
+
+==============================================================================
+INSTALLATION				*easygit-installation*
+
+Install with your favorite plugin managers like NeoBundle/Plugin/Plug
+>
+>
+	NeoBundle 'chemzqm/easygit'
+	Plugin 'chemzqm/easygit'
+	Plug 'chemzqm/easygit'
+
+==============================================================================
+PREREQUIREMENT				*easygit-prerequirement*
+
+Make sure your vim version is 7.0+, and you have git version above 2.0.0 (It
+may works with git < 2.0.0, but not guaranteed)
+
+==============================================================================
+PHILOSOPHY				*easygit-philosophy*
+
+Easygit tris hard to works well 80% of daily usage git commands while avoid
+overhead complexity.  As a result, it will not wrap everything that git can
+do.  If you want feature rich, you should use |vim-fugitive|, here is the list of
+features that will not be implemented:
+
+	* Open in browser, since the code would sucks, and most people rarely
+	need this, if you need, install a plugin do the browser job for you,
+	eg: https://github.com/tyru/open-browser-github.vim
+
+	* Async operation, including git pull/push, as it would be much better
+	if you run long time operation in your terminal or make use come plugin
+	that support async command like https://github.com/tpope/vim-dispatch
+
+	* Git merge, if you use git merge commonly, it would be a better idea to
+	run it in command line, easygit can't help you merge files, use the best
+	tools.
+
+	* Git log, git log is really useful feature, so I want to implement it
+	in a separate plugin https://github.com/chemzqm/unite-git-log, witch
+	using |unite.vim|, with the power of unite, your life with git log would
+	much easier.
+
+	* Git grep, you can easily make vim's :grep command use git grep, see
+	http://vim.wikia.com/wiki/Git_grep, if you need git grep output the
+	column number which you can jump to, make a executable file named
+	grepprg and including code below:
+>
+
+	#! /bin/bash
+
+	git --no-pager grep --no-color --no-index --exclude-standard -n $1
+		\| while read git_grep; do
+
+	  file_and_line=$(echo "$git_grep" | cut -d : -f 1,2)
+	  match=$(echo "$git_grep" | sed 's/[^:]*:[^:]*:\(.*\)/\1/')
+	  column=$(echo "$match" | awk "{print index(\$0, \"$1\")}")
+
+	  echo "$file_and_line:$column:$match"
+	done
+<
+	Then config vim to use it >
+
+	set grepprg=grepprg\ $*
+	set grepformat=%f:%l:%c:%m
+<	
+	Now, your :grep commands would use git grep.
+
+	* Git stash, it's a useful command, but rarely used indeed.
+
+==============================================================================
+INTERFACE				*easygit-interface*
+
+Easygit comes with some commands to help you work with git, but you can turn
+them off (see |easygit-variable|) if you still want have fugitive installed.
+
+------------------------------------------------------------------------------
+COMMANDS 				*easygit-commands*
+
+:Gcd   					*:Gcd*
+		Make vim :cd to git root directory of current file
+
+:Glcd					*:Glcd*
+		Make vim :lcd to git root directory of current file
+
+:Gca					*:Gca*
+		Open a new buffer and commit all your changes, like running:
+
+		git commit -a -v
+
+		The commit message window would open in a new split window,
+		and continued when you quit the buffer, just like the command
+		line behaviour.
+
+:Gci {messages}				*:Gci*
+		Quickly commit changes of current buffer with {messages}, no
+		need to escape the space or quote the messages ,and no `press
+		enter to continue` would bother you
+
+:Gblame 				*:Gblame*
+		Run git blame with current buffer, the blame buffer would take
+		place of current buffer, you can make use of |easygit-d| and
+		|easygit-p| to interactive with this buffer.
+
+		Note your vim current working directory must contain git directory
+		of current file for this command to work(it's quite special).
+
+:Gco [{command}]			*:Gco*
+		With out {command}, this would checkout current buffer, just
+		like
+			git checkout -- path-to-current-file
+		did, which means you want to discard the changes made to
+		current buffer.
+
+		The {command} are simply passed to the git checkout command,
+		you can checkout anything supported by git checkout like
+		branch and revision.
+
+:Gedit [{command}]			*:Gedit*
+		Open a buffer that contains the ouput from git show, the
+		{command} arguments is passed to git show, without {command},
+		the head commit would shown, the same behaviour as git show
+
+:Gdiff [{command}]			*:Gdiff*
+		Show a git diff buffer that contains the result from git diff
+		command.  Without {command}, the unstaged changes would be
+		shown, just like git diff.
+
+
+:Gcommit {command}			*:Gcommit*	
+		Run git commit with {command} as arguments
+
+:GdiffThis [{revison}]			*:GdiffThis*
+		Diff current file with the same one in revision(default head)
+		side by side.  The diff status would be restored after you
+		quit all diff buffer.
+
+
+
+
+==============================================================================
+VARIABLES 				*easygit-variables*
+
+Some variables could be used for configure how easygit, none of them are
+necessary, easygit comes with pretty good default options
+
+------------------------------------------------------------------------------
+
+*g:easygit_disable_command*
+	To disable all the commands of easygit, use: >
+
+		let easygit_disable_command = 1
+
+*g:easygit_edit_edit_command*
+	configure the edit command for |:Gedit|, eg:
+		
+		let g:easygit_edit_edit_command = 'vsplit'
+	
+	to make the buffer open in vertical split view.
+
+*g:easygit_edit_fold*
+	By default, the buffer of |:Gedit| would fold, set
+
+		let g:easygit_edit_fold = 0
+
+	to disable the fold on buffer read
+
+*g:easygit_diff_edit_command*
+	The edit command for |:Gdiff|, eg:
+
+		let g:easygit_diff_edit_command = 'pedit'
+	
+	to make the buffer open in preview window
+
+*g:easygit_diff_this_edit*
+	The edit command for |:GdiffThis|, default value is {vsplit}
+
+
+==============================================================================
+KEYMAPING				 *easygit-keymaping*
+
+Easygit comes with some handy buffer local keymaping to make you works easier
+with the generated buffers.
+
+------------------------------------------------------------------------------
+
+q					*n_easygit_q*
+
+		Quite the temporary buffer, if it's open by edit/pedit
+		command, the window would be restored to the previous buffer,
+		otherwise, the window will closed.
+
+u					*n_easygit_u*
+
+		Open parent commit, works only with buffer git show command
+		Combine with |n_easygit_d|, you can navigate git tree up and
+		down easily
+
+d					*n_easygit_d*
+
+		When in buffer from |:Gedit|, open first child commit.
+		When in buffer from |:Gblame|, run |:GdiffThis| with the
+		commit of current line
+
+p					*n_easygit_p*
+
+		Run |:Gedit| with ref in current line, works only in buffer
+		from |:Gblame|
+
+
+==============================================================================
+FUNCTIONS				 *easygit-functions*
+
+easygit#gitdir([{buf}])				*easygit#gitdir*
+		Extract git directory by bufnr or bufname, or '%' for current
+		buffer
+
+easygit#cd([{local}])				*easygit#cd*
+		Make vim cd/lcd to git root directory of current file
+
+easygit#checkout([{command}])			*easygit#checkout*
+		Run git checkout run {command} as options
+
+easygit#show([{command}], [{option}])		*easy#show*
+		Run git show with {command} as options, specify edit mode by
+		config option.edit
+
+easygit#diffThis({commit}, [{edit}])		*easy#diffThis*
+		Diff current file with {commit}, use {edit} to change edit mode
+
+easygit#diffShow({commit}, [{edit}])		*easy#diffShow*
+		Git diff with {commit}, use {edit} to change edit mode(default ).
+
+easygit#commitCurrent({msg}])			*easy#commitCurrent*
+		Commit current buffer changes with {msg}
+
+easygit#blame([{edit}]])			*easy#blame*
+		Open git blame buffer of current buffer with {edit} method
+
+easygit#commit([{command}]])			*easy#commit*
+		Start git commit with command operation in a split buffer
+		Note this command is quite limited, for commit options like
+		`-p` is not supported.
+
+==============================================================================
+CHANGELOG				*easygit-changelog*
+
+0.1.0	2016-1-4
+	- init.
+
+==============================================================================
+TODO				 	*easygit-todo*
+
+* TODO gremove and gmove
+* TODO command option complete and git files for Gcommit
+* TODO git branch complete for Gedit/Gco
+
+==============================================================================
+
+vim:tw=78:ts=8:sts=0:ft=help:noet:fen:fdm=marker:
