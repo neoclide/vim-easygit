@@ -1,9 +1,9 @@
 # Easygit
 
-A feature less git wrapper for vim, it tries to provide goodness of using git in
-side vim, while avoid the madness complexity.
+A feature less git wrapper for vim, it tries to provide goodness of using git inside vim,
+while avoid the madness complexity.
 
-If you want a feature git plugin, you can use [vim-fugitive](https://github.com/tpope/vim-fugitive).
+If you want a featured git plugin, you can use [fugitive](https://github.com/tpope/vim-fugitive).
 
 ## Documentation
 
