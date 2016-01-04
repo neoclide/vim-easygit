@@ -58,7 +58,7 @@ endfunction
 augroup easygit
   autocmd!
   autocmd VimLeavePre,BufDelete COMMIT_EDITMSG call s:FinishCommit()
-  autocmd BufWinLeave * call s:Onbufleave()
+  autocmd BufWinLeave __easygit__show* call s:Onbufleave()
 augroup END
 
 " TODO gremove gmove
