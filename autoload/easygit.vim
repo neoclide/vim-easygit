@@ -429,6 +429,23 @@ function! easygit#remove(force, args)
   endfor
 endfunction
 
+" list files in git repository of current file
+function! easygit#listfiles(A, L, P)
+  let root = fnamemodify(easygit#gitdir('%'), ':h')
+  let cwd = getcwd()
+  if cwd !~ '^' .root
+    exe 'lcd ' . root
+  endif
+  let command = 'git ls-tree --name-only -r HEAD'
+  let output = system(command)
+  exe 'lcd ' . cwd
+  if v:shell_error && output !=# ""
+    echohl Error | echon output | echohl None
+    return ''
+  endif
+  return output
+endfunction
+
 " Execute command and show the result by options
 " `option.edit` edit command used for open result buffer
 " `option.pipe` pipe current buffer to command

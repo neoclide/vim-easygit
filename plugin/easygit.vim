@@ -83,6 +83,10 @@ function! s:Remove(bang, ...)
   call easygit#remove(force, args)
 endfunction
 
+function! s:GitFiles(A, L, P)
+  return easygit#listfiles(a:A, a:L, a:P)
+endfunction
+
 augroup easygit
   autocmd!
   autocmd VimLeavePre,BufDelete COMMIT_EDITMSG call s:FinishCommit()
@@ -92,7 +96,7 @@ augroup END
 " TODO command option complete and git files for Gcommit/Gremove
 " TODO git branch complete for Gedit/Gco
 " TODO g:easygit_auto_lcd
-" TODO Gst for add remove commit changes
+" TODO Gstatus for add remove commit changes
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                           :call easygit#cd(0)
   command! -nargs=0 Glcd                          :call easygit#cd(1)
@@ -101,10 +105,10 @@ if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=* Gdiff                         :call s:DiffShow(<q-args>)
   command! -nargs=+ Gci                           :call easygit#commitCurrent(<q-args>)
   command! -nargs=0 Gca                           :call s:CommitAll()
-  command! -nargs=+ Gcommit                       :call easygit#commit(<q-args>)
   command! -nargs=? GdiffThis                     :call s:DiffThis(<q-args>)
   command! -nargs=0 Gblame                        :call easygit#blame()
-  command! -nargs=+ -bang -complete=file Gmove      :call s:Move('<bang>', <f-args>)
-  command! -nargs=1 -bang -complete=file Grename  :call s:Rename('<bang>', <f-args>)
-  command! -nargs=* -bang -complete=file Gremove      :call s:Remove('<bang>', <f-args>)
+  command! -nargs=+ -complete=custom,s:GitFiles   Gcommit :call easygit#commit(<q-args>)
+  command! -nargs=* -bang -complete=custom,s:GitFiles Gremove  :call s:Remove('<bang>', <f-args>)
+  command! -nargs=1 -bang -complete=custom,s:GitFiles Grename  :call s:Rename('<bang>', <f-args>)
+  command! -nargs=+ -bang -complete=custom,s:GitFiles Gmove   :call s:Move('<bang>', <f-args>)
 endif
