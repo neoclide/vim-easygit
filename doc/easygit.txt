@@ -352,6 +352,11 @@ easygit#remove({force}, {args}) 		*easygit#remove*
 		-f if {force} is ture. The files in {args} string would also
 		be deleted form vim's buffer list
 
+easygit#complete({file}, {branch}, {tag})	*easygit#complete*
+		Get the list of git objects for complete, possibly including
+		{file}, {branch}, {tag}, refult is a string separated by line
+		break.
+
 ==============================================================================
 CHANGELOG				*easygit-changelog*
 
@@ -361,11 +366,12 @@ CHANGELOG				*easygit-changelog*
 0.2.0	2016-1-5
 	- added Gmv Grm and Grename
 	- added easygit_auto_lcd option
+	- added complete functions for all commands
+
 ==============================================================================
 TODO				 	*easygit-todo*
 
-* TODO command option complete and git files for Gcommit
-* TODO git branch complete for Gedit/Gco
+* TODO Gstatus for add remove file(s) and show the changes
 
 ==============================================================================
 
