@@ -26,11 +26,7 @@ function! s:DiffShow(args)
   call easygit#diffShow(a:args, edit)
 endfunction
 
-function! s:CommitAll()
-  let arg = ' -a -v'
-  call easygit#commit(arg)
-endfunction
-
+" Restore diff status if no diff buffer open
 function! s:Onbufleave()
   let wnr = +bufwinnr(+expand('<abuf>'))
   let val = getwinvar(wnr, 'easygit_diff_origin')
@@ -41,7 +37,6 @@ function! s:Onbufleave()
       return
     endif
   endfor
-  let g:val = val
   let wnr = bufwinnr(val)
   if wnr > 0
     exe wnr . "wincmd w"
@@ -124,7 +119,6 @@ augroup END
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                            :call easygit#cd(0)
   command! -nargs=0 Glcd                           :call easygit#cd(1)
-  command! -nargs=0 GcommitAll                            :call s:CommitAll()
   command! -nargs=0 Gblame                         :call easygit#blame()
   command! -nargs=+ GcommitCurrent                  :call easygit#commitCurrent(<q-args>)
   command! -nargs=? GdiffThis                      :call s:DiffThis(<q-args>)
@@ -132,7 +126,6 @@ if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=* -bang -complete=custom,s:GitFiles Gremove  :call s:Remove('<bang>', <f-args>)
   command! -nargs=1 -bang -complete=custom,s:GitFiles Grename  :call s:Rename('<bang>', <f-args>)
   command! -nargs=+ -bang -complete=custom,s:GitFiles Gmove    :call s:Move('<bang>', <f-args>)
-
   command! -nargs=* -complete=custom,s:CompleteCheckout Gcheckout   :call easygit#checkout(<q-args>)
   command! -nargs=* -complete=custom,s:CompleteShow     Gedit       :call s:Edit(<q-args>)
   command! -nargs=* -complete=custom,s:CompleteDiff     Gdiff       :call s:DiffShow(<q-args>)

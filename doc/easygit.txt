@@ -150,15 +150,6 @@ COMMANDS 				*easygit-commands*
 :Glcd						*:Glcd*
 		Make vim :lcd to git root directory of current file
 
-:GcommitAll					*:GcommitAll*
-		Open a new buffer and commit all your changes, like running:
-
-		git commit -a -v
-
-		The commit message window would open in a new split window,
-		and continued when you quit the buffer, just like the command
-		line behaviour.
-
 :GcommitCurrent {messages}			*:GcommitCurrent*
 		Quickly commit changes of current buffer with {messages}, no
 		need to escape the space or quote the messages ,and no `press
