@@ -204,7 +204,7 @@ COMMANDS 				*easygit-commands*
 		Note only works when vim CWD inside git directory of current
 		file. You can use |:Gcd| or |:Glcd| when necessary.
 
-:Gmv[{bang}] {source} {destination} 	*:Gmv*
+:Gmove[{bang}] {source} {destination} 	*:Gmove*
 		Git mv a file from {source} to {destination}, when {bang} is
 		used, -f option is added for git mv.  If moving current
 		buffer, a new buffer with new bufname would take replace.
@@ -218,7 +218,7 @@ COMMANDS 				*easygit-commands*
 		Note only works when vim CWD inside git control. You can use
 		|:Gcd| or |:Glcd| when necessary.
 
-:Grm[{bang}] [{options}] [{files}]...	*:Grm*
+:Gremove[{bang}] [{options}] [{files}]...	*:Gremove*
 		Run git rm with {files}, when {bang} is used, -f option is
 		added for git rm. If no files specified, current file is used,
 		{files} would also be removed from vim's buffer list.
