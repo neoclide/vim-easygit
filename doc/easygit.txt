@@ -64,8 +64,8 @@ vim-fugitive, thanks for open source :)
 
 This is a fundamental implementation, some features may not works in systems
 like windows, and sometimes it may not works as expected, but I've tried hard
-to make it not break anything, and behaviour friendly to user.  Let me know if
-you got any problem https://github.com/chemzqm/easygit/issues
+to make it not break anything, and works friendly to user as much as possible.
+Let me know if you got any problem https://github.com/chemzqm/easygit/issues
 
 ==============================================================================
 INSTALLATION				*easygit-installation*
@@ -94,10 +94,6 @@ features that will not be implemented:
 	* Open in browser, since the code would sucks, and most people rarely
 	need this, if you need, install a plugin do the browser job for you,
 	eg: https://github.com/tyru/open-browser-github.vim
-
-	* Async operation, including git pull/push, as it would be much better
-	if you run long time operation in your terminal or make use come plugin
-	that support async command like https://github.com/tpope/vim-dispatch
 
 	* Git merge, if you use git merge commonly, it would be a better idea to
 	run it in command line, easygit can't help you merge files, use the best
@@ -158,7 +154,9 @@ COMMANDS 				*easygit-commands*
 :Gcheckout [{command}]				*:Gcheckout*
 		With out {command}, this would checkout current buffer, just
 		like
+
 			git checkout -- path-to-current-file
+
 		did, which means you want to discard the changes made to
 		current buffer.
 
@@ -174,48 +172,37 @@ COMMANDS 				*easygit-commands*
 :Gcommit {command}				*:Gcommit*
 		Run git commit with {command} as arguments
 
+		Note this command is limited, options like `-p` is not
+		supported.
+
 :GdiffThis [{revison}]				*:GdiffThis*
 		Diff current file with the same one in revision(default head)
 		side by side.  The diff status would be restored after you
 		quit all diff buffer.
-
-:Gdiff [{command}]				*:Gdiff*
-		Show a git diff buffer that contains the result from git diff
-		command.  Without {command}, the unstaged changes would be
-		shown, just like git diff.
-
-		Note only works when vim CWD within git control. You can use
-		|:Gcd| or |:Glcd| when necessary.
 
 :Gblame 					*:Gblame*
 		Run git blame with current buffer, the blame buffer would take
 		place of current buffer, you can make use of |easygit-d| and
 		|easygit-p| to interactive with this buffer.
 
-		Note only works when vim CWD inside git directory of current
-		file. You can use |:Gcd| or |:Glcd| when necessary.
+:Gdiff [{command}]				*:Gdiff*
+		Show a git diff buffer that contains the result from git diff
+		command.  Without {command}, the unstaged changes would be
+		shown, just like git diff.
 
 :Gmove[{bang}] {source} {destination} 	*:Gmove*
 		Git mv a file from {source} to {destination}, when {bang} is
 		used, -f option is added for git mv.  If moving current
 		buffer, a new buffer with new bufname would take replace.
 
-		Note only works when vim CWD inside a git directory. You can
-		use |:Gcd| or |:Glcd| when necessary.
-
 :Grename[{bang}] {bufname}		*:Grename*
 		Git rename current buffer to a new {bufname}
 
-		Note only works when vim CWD inside git control. You can use
-		|:Gcd| or |:Glcd| when necessary.
 
 :Gremove[{bang}] [{options}] [{files}]...	*:Gremove*
 		Run git rm with {files}, when {bang} is used, -f option is
 		added for git rm. If no files specified, current file is used,
 		{files} would also be removed from vim's buffer list.
-
-		Note only works when vim CWD inside git control. You can use
-		|:Gcd| or |:Glcd| when necessary.
 
 
 
@@ -302,51 +289,48 @@ Easygit exports some useful functions.
 
 ------------------------------------------------------------------------------
 
-easygit#gitdir([{buf}])				*easygit#gitdir*
-		Extract git directory by bufnr or bufname, or '%' for current
-		buffer
+easygit#gitdir([{path}])				*easygit#gitdir*
+		Extract git directory by path.
 
-easygit#cd([{local}])				*easygit#cd*
-		Make vim cd/lcd to git root directory of current file
+easygit#cd([{local}])					*easygit#cd*
+		Make vim cd/lcd to git root directory of current file.
 
-easygit#checkout([{command}])			*easygit#checkout*
+easygit#checkout([{command}])				*easygit#checkout*
 		Run git checkout run {command} as options
 
-easygit#show([{command}], [{option}])		*easygit#show*
+easygit#show([{command}], [{option}])			*easygit#show*
 		Run git show with {command} as options, specify edit mode by
 		config option.edit
 
-easygit#diffThis({commit}, [{edit}])		*easygit#diffThis*
+easygit#diffThis({commit}, [{edit}])			*easygit#diffThis*
 		Diff current file with {commit}, use {edit} to change edit mode
 
-easygit#diffShow({commit}, [{edit}])		*easygit#diffShow*
+easygit#diffShow({commit}, [{edit}])			*easygit#diffShow*
 		Git diff with {commit}, use {edit} to change edit mode(default ).
 
-easygit#commitCurrent({msg}])			*easygit#commitCurrent*
+easygit#commitCurrent({msg}])				*easygit#commitCurrent*
 		Commit current buffer changes with {msg}
 
-easygit#blame([{edit}]])			*easygit#blame*
+easygit#blame([{edit}]])				*easygit#blame*
 		Open git blame buffer of current buffer with {edit} method
 
-easygit#commit([{command}]])			*easygit#commit*
+easygit#commit([{command}]])				*easygit#commit*
 		Start git commit with command operation in a split buffer
 
-		Note this command is limited, options like `-p` is not
-		supported.
-
-easygit#move({force}, {source}, {destination})	*easygit#move*
+easygit#move({force}, {source}, {destination})		*easygit#move*
 		Start git mv the {source} to {destination}, append option -f
 		if {force} is true.
 
-easygit#remove({force}, {args}) 		*easygit#remove*
+easygit#remove({force}, {args}, {current}) 		*easygit#remove*
 		Start git remove with {args} for command git rm, append option
 		-f if {force} is ture. The files in {args} string would also
-		be deleted form vim's buffer list
+		be deleted form vim's buffer list, if current is true, remove
+		file of current buffer
 
-easygit#complete({file}, {branch}, {tag})	*easygit#complete*
+easygit#complete({file}, {branch}, {tag}, {cwd})	*easygit#complete*
 		Get the list of git objects for complete, possibly including
 		{file}, {branch}, {tag}, refult is a string separated by line
-		break.
+		break. If {cwd} is true, extract git directory from CWD.
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*

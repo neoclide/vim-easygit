@@ -8,14 +8,10 @@
 
 " Extract git directory by bufffer expr use CWD as fallback
 " if suspend is given as a:1, no error message
-function! easygit#gitdir(buf, ...) abort
+function! easygit#gitdir(path, ...) abort
   let suspend = a:0 && a:1 != 0
-  let path = fnamemodify(bufname(a:buf) , ':p')
+  let path = fnamemodify(a:path , ':p')
   let gitdir = s:FindGitdir(path)
-  " use current directory as fallback
-  if empty(gitdir) && isdirectory(simplify(getcwd(). '/.git'))
-    let gitdir = getcwd() . '/.git'
-  endif
   if empty(gitdir) && !suspend
     echohl Error | echon 'Git directory not found' | echohl None
   endif
@@ -34,9 +30,9 @@ function! s:FindGitdir(path)
   return ''
 endfunction
 
-" cd or lcd to base directory
+" cd or lcd to base directory of current file's git root
 function! easygit#cd(local) abort
-  let dir = easygit#gitdir('%')
+  let dir = easygit#gitdir(expand('%'))
   if empty(dir) | return | endif
   let cmd = a:local ? 'lcd' : 'cd'
   exe cmd . ' ' . fnamemodify(dir, ':h')
@@ -45,7 +41,7 @@ endfunction
 " `cmd` string options for git checkout
 " Checkout current file if cmd empty
 function! easygit#checkout(cmd) abort
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
   let old_cwd = getcwd()
@@ -68,13 +64,15 @@ function! easygit#checkout(cmd) abort
 endfunction
 
 " show the commit ref with `option.edit` and `option.all`
+" Using gitdir of current file
 " fold the file if `option.fold` is true
 " `option.file` could contain the file for show
 " `option.fold` if 0, nofold
 " `option.all` show all files change
+" `option.gitdir` could contain gitdir to work on
 function! easygit#show(args, option) abort
   let fold = get(a:option, 'fold', 1)
-  let gitdir = get(a:option, 'gitdir', easygit#gitdir('%'))
+  let gitdir = get(a:option, 'gitdir', easygit#gitdir(expand('%')))
   if empty(gitdir) | return | endif
   let showall = get(a:option, 'all', 0)
   let format = '--pretty=format:''commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b'' '
@@ -178,7 +176,7 @@ endfunction
 
 " diff current file with ref in vertical split buffer
 function! easygit#diffThis(ref, ...) abort
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let ref = len(a:ref) ? a:ref : 'head'
   let edit = a:0 ? a:1 : 'vsplit'
@@ -208,7 +206,7 @@ endfunction
 " Show diff window with optional command args or `git diff`
 function! easygit#diffShow(args, ...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
   let old_cwd = getcwd()
@@ -232,7 +230,7 @@ function! easygit#commitCurrent(args) abort
     echohl Error | echon 'Msg should not empty' | echohl None
     return
   endif
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
   let old_cwd = getcwd()
@@ -252,7 +250,7 @@ endfunction
 " blame current file
 function! easygit#blame(...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let bname = bufname('%')
   let view = winsaveview()
@@ -356,8 +354,8 @@ endfunction
 
 " Open commit buffer and commit changes on save
 function! easygit#commit(args, ...) abort
-  let gitdir = a:0 ? a:1 : easygit#gitdir('%')
-  "if empty(gitdir) | return | endif
+  let gitdir = a:0 ? a:1 : easygit#gitdir(expand('%'))
+  if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
   let old_cwd = getcwd()
   let edit = 'keepalt '. get(g:, 'easygit_commit_edit', 'split')
@@ -401,17 +399,22 @@ endfunction
 
 function! easygit#move(force, source, destination) abort
   if a:source ==# a:destination | return | endif
-  let gitdir = easygit#gitdir('%')
+  let gitdir = easygit#gitdir(expand('%'))
+  let root = fnamemodify(gitdir, ':h')
+  let old_cwd = getcwd()
+  execute 'lcd ' . root
+  let source = empty(a:source) ? bufname('%') : a:source
   if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
-  let command = 'git mv ' . (a:force ? '-f ': '') . a:source . ' ' . a:destination
+  let command = 'git mv ' . (a:force ? '-f ': '') . source . ' ' . a:destination
   let output = system(command)
   if v:shell_error && output !=# ""
+    execute 'lcd ' . old_cwd
     echohl Error | echon output | echohl None
     return
   endif
   let dest = substitute(a:destination, '\v^\./', '', '')
-  if a:source ==# bufname('%')
+  if source ==# bufname('%')
     let tail = fnamemodify(bufname('%'), ':t')
     if dest ==# '.'
       exe 'keepalt edit! ' . fnameescape(tail)
@@ -421,25 +424,30 @@ function! easygit#move(force, source, destination) abort
       " file name change
       exe 'keepalt saveas! ' . fnameescape(dest)
     endif
-    exe 'silent! bdelete ' . bufnr(a:source)
+    exe 'silent! bdelete ' . bufnr(source)
   endif
+  execute 'lcd ' . old_cwd
 endfunction
 
-function! easygit#remove(force, args)
-  let gitdir = easygit#gitdir('%')
+function! easygit#remove(force, args, current)
+  let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
+  let old_cwd = getcwd()
+  execute 'lcd ' . root
   let list = split(a:args, '\v[^\\]\zs\s')
   let files = map(filter(list, 'v:val !~# "^-"'),
     \'substitute(v:val, "^\\./", "", "")')
   let force =  a:force && a:args !~# '\v<-f>' ? '-f ' : ''
+  let cname = substitute(expand('%'), ' ', '\\ ', 'g')
   let command = 'git rm ' . force . a:args
+  let command .= a:current ? cname : ''
   let output = system(command)
   if v:shell_error && output !=# ""
     echohl Error | echon output | echohl None
+    execute 'lcd ' . old_cwd
     return
   endif
-  let cname = substitute(expand('%'), ' ', '\\ ', 'g')
   for name in files
     if name ==# cname
       if exists(':Bdelete')
@@ -453,10 +461,12 @@ function! easygit#remove(force, args)
       exe "silent! bdelete " . name
     endif
   endfor
+  execute 'lcd ' . old_cwd
 endfunction
 
-function! easygit#complete(file, branch, tag)
-  let root = fnamemodify(easygit#gitdir('%'), ':h')
+function! easygit#complete(file, branch, tag, cwd)
+  let from = a:cwd ? getcwd() : expand('%')
+  let root = fnamemodify(easygit#gitdir(from), ':h')
   let output = ''
   let cwd = getcwd()
   if cwd !~ '^' .root

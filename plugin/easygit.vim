@@ -54,9 +54,8 @@ function! s:Move(...)
 endfunction
 
 function! s:Rename(bang, destination)
-  let source = bufname('%')
   let force = a:bang ==# '!' ? 1 : 0
-  call easygit#move(force, source, a:destination)
+  call easygit#move(force, '', a:destination)
 endfunction
 
 function! s:DiffThis(arg)
@@ -69,23 +68,19 @@ function! s:Remove(bang, ...)
   let force = a:bang ==# '!' ? 1 : 0
   " keep the \ for space
   let list = map(copy(a:000), 'substitute(v:val, " ", "\\\\ ", "")')
-  let files = filter(list, 'v:val !~# "^-"')
-  if empty(files)
-    let args = join(list, ' ') .  bufname('%')
-  else
-    let args = join(list, ' ')
-  endif
-  call easygit#remove(force, args)
+  let files = filter(copy(list), 'v:val !~# "^-"')
+  let current = empty(files)
+  call easygit#remove(force, join(list, ' '), current)
 endfunction
 
 function! s:GitFiles(A, L, P)
-  return easygit#complete(1, 0, 0)
+  return easygit#complete(1, 0, 0, 0)
 endfunction
 
 function! s:TryGitlcd()
   if &buftype =~# '\v(nofile|help)' | return | endif
   if &previewwindow | return | endif
-  let gitdir = easygit#gitdir('%', 1)
+  let gitdir = easygit#gitdir(expand('%'), 1)
   if empty(gitdir) | return | endif
   let cwd = getcwd()
   let root = fnamemodify(gitdir, ':h')
@@ -96,17 +91,17 @@ endfunction
 
 " Tag and Branch
 function! s:CompleteCheckout(A, L, P)
-  return easygit#complete(0, 1, 1)
+  return easygit#complete(0, 1, 1, 0)
 endfunction
 
 " Branch
 function! s:CompleteShow(A, L, P)
-  return easygit#complete(0, 1, 0)
+  return easygit#complete(0, 1, 0, 0)
 endfunction
 
 " File and Branch
 function! s:CompleteDiff(A, L, P)
-  return easygit#complete(1, 1, 0)
+  return easygit#complete(1, 1, 0, 0)
 endfunction
 
 augroup easygit
@@ -116,7 +111,6 @@ augroup easygit
 augroup END
 
 " TODO Gstatus for add remove commit changes
-" TODO Command need git directory should only exist if cwd in git directory
 " TODO Gpull Gpush Gfetch
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                            :call easygit#cd(0)
@@ -137,6 +131,6 @@ endif
 if get(g:, 'easygit_auto_lcd', 0)
   augroup easygit_auto_lcd
     autocmd!
-    autocmd BufWinEnter * call s:TryGitlcd()
+    autocmd BufWinEnter,BufReadPost * call s:TryGitlcd()
   augroup end
 endif
