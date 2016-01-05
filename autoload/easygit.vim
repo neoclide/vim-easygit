@@ -70,9 +70,11 @@ endfunction
 " show the commit ref with `option.edit` and `option.all`
 " fold the file if `option.fold` is true
 " `option.file` could contain the file for show
+" `option.fold` if 0, nofold
+" `option.all` show all files change
 function! easygit#show(args, option) abort
   let fold = get(a:option, 'fold', 1)
-  let gitdir = easygit#gitdir('%')
+  let gitdir = get(a:option, 'gitdir', easygit#gitdir('%'))
   if empty(gitdir) | return | endif
   let showall = get(a:option, 'all', 0)
   let format = '--pretty=format:''commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b'' '
