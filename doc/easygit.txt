@@ -162,15 +162,7 @@ COMMANDS 				*easygit-commands*
 :Gci {messages}				*:Gci*
 		Quickly commit changes of current buffer with {messages}, no
 		need to escape the space or quote the messages ,and no `press
-		enter to continue` would bother you
-
-:Gblame 				*:Gblame*
-		Run git blame with current buffer, the blame buffer would take
-		place of current buffer, you can make use of |easygit-d| and
-		|easygit-p| to interactive with this buffer.
-
-		Note your vim current working directory must contain git directory
-		of current file for this command to work(it's quite special).
+		enter to continue` would bother you.
 
 :Gco [{command}]			*:Gco*
 		With out {command}, this would checkout current buffer, just
@@ -188,13 +180,7 @@ COMMANDS 				*easygit-commands*
 		{command} arguments is passed to git show, without {command},
 		the head commit would shown, the same behaviour as git show
 
-:Gdiff [{command}]			*:Gdiff*
-		Show a git diff buffer that contains the result from git diff
-		command.  Without {command}, the unstaged changes would be
-		shown, just like git diff.
-
-
-:Gcommit {command}			*:Gcommit*	
+:Gcommit {command}			*:Gcommit*
 		Run git commit with {command} as arguments
 
 :GdiffThis [{revison}]			*:GdiffThis*
@@ -202,13 +188,50 @@ COMMANDS 				*easygit-commands*
 		side by side.  The diff status would be restored after you
 		quit all diff buffer.
 
+:Gdiff [{command}]			*:Gdiff*
+		Show a git diff buffer that contains the result from git diff
+		command.  Without {command}, the unstaged changes would be
+		shown, just like git diff.
+
+		Note only works when vim CWD within git control. You can use
+		|:Gcd| or |:Glcd| when necessary.
+
+:Gblame 				*:Gblame*
+		Run git blame with current buffer, the blame buffer would take
+		place of current buffer, you can make use of |easygit-d| and
+		|easygit-p| to interactive with this buffer.
+
+		Note only works when vim CWD inside git directory of current
+		file. You can use |:Gcd| or |:Glcd| when necessary.
+
+:Gmv[{bang}] {source} {destination} 	*:Gmv*
+		Git mv a file from {source} to {destination}, when {bang} is
+		used, -f option is added for git mv.  If moving current
+		buffer, a new buffer with new bufname would take replace.
+
+		Note only works when vim CWD inside a git directory. You can
+		use |:Gcd| or |:Glcd| when necessary.
+
+:Grename[{bang}] {bufname}		*:Grename*
+		Git rename current buffer to a new {bufname}
+
+		Note only works when vim CWD inside git control. You can use
+		|:Gcd| or |:Glcd| when necessary.
+
+:Grm[{bang}] [{options}] [{files}]...	*:Grm*
+		Run git rm with {files}, when {bang} is used, -f option is
+		added for git rm. If no files specified, current file is used,
+		{files} would also be removed from vim's buffer list.
+
+		Note only works when vim CWD inside git control. You can use
+		|:Gcd| or |:Glcd| when necessary.
 
 
 
 ==============================================================================
 VARIABLES 				*easygit-variables*
 
-Some variables could be used for configure how easygit, none of them are
+Some variables could be used for configure how easygit works, none of them are
 necessary, easygit comes with pretty good default options
 
 ------------------------------------------------------------------------------
@@ -246,7 +269,7 @@ necessary, easygit comes with pretty good default options
 ==============================================================================
 KEYMAPING				 *easygit-keymaping*
 
-Easygit comes with some handy buffer local keymaping to make you works easier
+Easygit comes with some handy buffer local keymaping to make your works easier
 with the generated buffers.
 
 ------------------------------------------------------------------------------
@@ -278,6 +301,10 @@ p					*n_easygit_p*
 ==============================================================================
 FUNCTIONS				 *easygit-functions*
 
+Easygit exports some useful functions.
+
+------------------------------------------------------------------------------
+
 easygit#gitdir([{buf}])				*easygit#gitdir*
 		Extract git directory by bufnr or bufname, or '%' for current
 		buffer
@@ -288,26 +315,36 @@ easygit#cd([{local}])				*easygit#cd*
 easygit#checkout([{command}])			*easygit#checkout*
 		Run git checkout run {command} as options
 
-easygit#show([{command}], [{option}])		*easy#show*
+easygit#show([{command}], [{option}])		*easygit#show*
 		Run git show with {command} as options, specify edit mode by
 		config option.edit
 
-easygit#diffThis({commit}, [{edit}])		*easy#diffThis*
+easygit#diffThis({commit}, [{edit}])		*easygit#diffThis*
 		Diff current file with {commit}, use {edit} to change edit mode
 
-easygit#diffShow({commit}, [{edit}])		*easy#diffShow*
+easygit#diffShow({commit}, [{edit}])		*easygit#diffShow*
 		Git diff with {commit}, use {edit} to change edit mode(default ).
 
-easygit#commitCurrent({msg}])			*easy#commitCurrent*
+easygit#commitCurrent({msg}])			*easygit#commitCurrent*
 		Commit current buffer changes with {msg}
 
-easygit#blame([{edit}]])			*easy#blame*
+easygit#blame([{edit}]])			*easygit#blame*
 		Open git blame buffer of current buffer with {edit} method
 
-easygit#commit([{command}]])			*easy#commit*
+easygit#commit([{command}]])			*easygit#commit*
 		Start git commit with command operation in a split buffer
-		Note this command is quite limited, for commit options like
-		`-p` is not supported.
+
+		Note this command is limited, options like `-p` is not
+		supported.
+
+easygit#move({force}, {source}, {destination})	*easygit#move*
+		Start git mv the {source} to {destination}, append option -f
+		if {force} is true.
+
+easygit#remove({force}, {args}) 		*easygit#remove*
+		Start git remove with {args} for command git rm, append option
+		-f if {force} is ture. The files in {args} string would also
+		be deleted form vim's buffer list
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
@@ -315,6 +352,8 @@ CHANGELOG				*easygit-changelog*
 0.1.0	2016-1-4
 	- init.
 
+0.2.0	2016-1-5
+	- added Gmv Grm and Grename
 ==============================================================================
 TODO				 	*easygit-todo*
 

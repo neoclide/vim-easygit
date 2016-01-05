@@ -11,10 +11,10 @@ function! easygit#gitdir(buf) abort
   if a:buf ==# '%' && exists('b:gitdir')
     return b:gitdir
   endif
-  let path = fnamemodify(bufname(a:buf) , ':p')
+  let path = escape(fnamemodify(bufname(a:buf) , ':p'), ' .')
   let gitdir = substitute(fnamemodify(finddir('.git', path . ';'), ':p'), '/$', '', '')
-  if a:buf ==# '%'
-    let b:gitdir = gitdir
+  if empty(gitdir)
+    echohl Error | echon 'Git directory no found' | echohl None
   endif
   return gitdir
 endfunction
@@ -22,7 +22,6 @@ endfunction
 " cd or lcd to base directory
 function! easygit#cd(local) abort
   let dir = easygit#gitdir('%')
-  if !len(dir) | return | endif
   let cmd = a:local ? 'lcd' : 'cd'
   exe cmd . ' ' . fnamemodify(dir, ':h')
 endfunction
@@ -31,7 +30,6 @@ endfunction
 " Checkout current file if cmd empty
 function! easygit#checkout(cmd) abort
   let gitdir = easygit#gitdir('%')
-  if !len(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
   let old_cwd = getcwd()
   execute 'silent lcd '. root
@@ -58,7 +56,6 @@ endfunction
 function! easygit#show(args, option) abort
   let fold = get(a:option, 'fold', 1)
   let gitdir = easygit#gitdir('%')
-  if !len(gitdir) | return | endif
   let showall = get(a:option, 'all', 0)
   let format = '--pretty=format:''commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b'' '
   if showall
@@ -87,7 +84,7 @@ function! easygit#show(args, option) abort
   exe 'nnoremap <buffer> <silent> d :call <SID>ShowNextCommit()<cr>'
 endfunction
 
-function! s:ShowParentCommit()
+function! s:ShowParentCommit() abort
   let next_commit = matchstr(getline(2), '\v\s\zs.+$')
   call easygit#show(next_commit, {
         \ 'eidt': 'edit',
@@ -95,7 +92,7 @@ function! s:ShowParentCommit()
         \})
 endfunction
 
-function! s:ShowNextCommit()
+function! s:ShowNextCommit() abort
   let cur_commit = matchstr(getline(1), '\v\s\zs.+$')
   let commit = s:NextCommit(cur_commit)
   if empty(commit) | return | endif
@@ -162,7 +159,6 @@ endfunction
 " diff current file with ref in vertical split buffer
 function! easygit#diffThis(ref, ...) abort
   let gitdir = easygit#gitdir('%')
-  if !len(gitdir) | return | endif
   let ref = len(a:ref) ? a:ref : 'head'
   let edit = a:0 ? a:1 : 'vsplit'
   let ft = &filetype
@@ -257,7 +253,7 @@ function! easygit#blame(...) abort
   exe 'nnoremap <buffer> <silent> p :call <SID>ShowRefFromBlame("' . bname . '")<cr>'
 endfunction
 
-function! s:DiffFromBlame(bname)
+function! s:DiffFromBlame(bname) abort
   let commit = matchstr(getline('.'),'^\^\=\zs\x\+')
   let bnr = bufnr('%')
   let wnr = bufwinnr(a:bname)
@@ -272,7 +268,7 @@ function! s:DiffFromBlame(bname)
   endif
 endfunction
 
-function! s:ShowRefFromBlame(bname)
+function! s:ShowRefFromBlame(bname) abort
   let commit = matchstr(getline('.'),'^\^\=\zs\x\+')
   let gitdir = get(b:, 'gitdir', '')
   let root = fnamemodify(gitdir, ':h')
@@ -381,6 +377,57 @@ function! easygit#commit(args, ...) abort
   endif
 endfunction
 
+function! easygit#move(force, source, destination) abort
+  if a:source ==# a:destination | return | endif
+  let root = fnamemodify(easygit#gitdir('%'), ':h')
+  let command = 'git mv ' . (a:force ? '-f ': '') . a:source . ' ' . a:destination
+  let output = system(command)
+  if v:shell_error && output !=# ""
+    echohl Error | echon output | echohl None
+    return
+  endif
+  let dest = substitute(a:destination, '\v^\./', '', '')
+  if a:source ==# bufname('%')
+    let tail = fnamemodify(bufname('%'), ':t')
+    if dest ==# '.'
+      exe 'keepalt edit! ' . fnameescape(tail)
+    elseif isdirectory(dest)
+      exe 'keepalt edit! ' . fnameescape(simplify(dest . '/'. tail))
+    else
+      " file name change
+      exe 'keepalt saveas! ' . fnameescape(dest)
+    endif
+    exe 'silent! bdelete ' . bufnr(a:source)
+  endif
+endfunction
+
+function! easygit#remove(force, args)
+  let root = fnamemodify(easygit#gitdir('%'), ':h')
+  let list = split(a:args, '\v[^\\]\zs\s')
+  let files = map(filter(list, 'v:val !~# "^-"'),
+    \'substitute(v:val, "^\\./", "", "")')
+  let force =  a:force && a:args !~# '\v<-f>' ? '-f ' : ''
+  let command = 'git rm ' . force . a:args
+  let output = system(command)
+  if v:shell_error && output !=# ""
+    echohl Error | echon output | echohl None
+    return
+  endif
+  let cname = substitute(expand('%'), ' ', '\\ ', 'g')
+  for name in files
+    if name ==# cname
+      if exists(':Bdelete')
+        exe 'Bdelete ' . name
+      else
+        let alt = bufname('#')
+        if !empty(alt) | execute 'e ' . alt | endif
+        exe 'silent bdelete ' name
+      endif
+    else
+      exe "silent! bdelete " . name
+    endif
+  endfor
+endfunction
 
 " Execute command and show the result by options
 " `option.edit` edit command used for open result buffer
