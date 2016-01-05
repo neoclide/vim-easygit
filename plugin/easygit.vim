@@ -84,11 +84,12 @@ function! s:Remove(bang, ...)
 endfunction
 
 function! s:GitFiles(A, L, P)
-  return easygit#listfiles(a:A, a:L, a:P)
+  return easygit#complete(1, 0, 0)
 endfunction
 
 function! s:TryGitlcd()
-  if &buftype ==# 'nofile' | return | endif
+  if &buftype =~# '\v(nofile|help)' | return | endif
+  if &previewwindow | return | endif
   let gitdir = easygit#gitdir('%', 1)
   if empty(gitdir) | return | endif
   let cwd = getcwd()
@@ -98,6 +99,21 @@ function! s:TryGitlcd()
   endif
 endfunction
 
+" Tag and Branch
+function! s:CompleteCheckout(A, L, P)
+  return easygit#complete(0, 1, 1)
+endfunction
+
+" Branch
+function! s:CompleteShow(A, L, P)
+  return easygit#complete(0, 1, 0)
+endfunction
+
+" File and Branch
+function! s:CompleteDiff(A, L, P)
+  return easygit#complete(1, 1, 0)
+endfunction
+
 augroup easygit
   autocmd!
   autocmd VimLeavePre,BufDelete COMMIT_EDITMSG call s:FinishCommit()
@@ -105,21 +121,21 @@ augroup easygit
 augroup END
 
 " TODO Gstatus for add remove commit changes
-" TODO git branch complete for Gedit/Gco
 if !get(g:, 'easygit_disable_command', 0)
-  command! -nargs=0 Gcd                           :call easygit#cd(0)
-  command! -nargs=0 Glcd                          :call easygit#cd(1)
-  command! -nargs=0 Gca                           :call s:CommitAll()
-  command! -nargs=0 Gblame                        :call easygit#blame()
-  command! -nargs=+ Gci                           :call easygit#commitCurrent(<q-args>)
-  command! -nargs=* -complete=file Gco            :call easygit#checkout(<q-args>)
-  command! -nargs=* -complete=file Gedit          :call s:Edit(<q-args>)
-  command! -nargs=* Gdiff                         :call s:DiffShow(<q-args>)
-  command! -nargs=? GdiffThis                     :call s:DiffThis(<q-args>)
+  command! -nargs=0 Gcd                            :call easygit#cd(0)
+  command! -nargs=0 Glcd                           :call easygit#cd(1)
+  command! -nargs=0 GcommitAll                            :call s:CommitAll()
+  command! -nargs=0 Gblame                         :call easygit#blame()
+  command! -nargs=+ GcommitCurrent                  :call easygit#commitCurrent(<q-args>)
+  command! -nargs=? GdiffThis                      :call s:DiffThis(<q-args>)
   command! -nargs=+ -complete=custom,s:GitFiles   Gcommit :call easygit#commit(<q-args>)
   command! -nargs=* -bang -complete=custom,s:GitFiles Gremove  :call s:Remove('<bang>', <f-args>)
   command! -nargs=1 -bang -complete=custom,s:GitFiles Grename  :call s:Rename('<bang>', <f-args>)
-  command! -nargs=+ -bang -complete=custom,s:GitFiles Gmove   :call s:Move('<bang>', <f-args>)
+  command! -nargs=+ -bang -complete=custom,s:GitFiles Gmove    :call s:Move('<bang>', <f-args>)
+
+  command! -nargs=* -complete=custom,s:CompleteCheckout Gcheckout   :call easygit#checkout(<q-args>)
+  command! -nargs=* -complete=custom,s:CompleteShow     Gedit       :call s:Edit(<q-args>)
+  command! -nargs=* -complete=custom,s:CompleteDiff     Gdiff       :call s:DiffShow(<q-args>)
 endif
 
 " enable auto lcd
