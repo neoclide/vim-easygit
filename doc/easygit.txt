@@ -1,4 +1,4 @@
-*easygit.txt*	a feature less git wrapper for vim
+*easygit.txt*	cleaned and featured git wrapper for vim
 
        @@@@@@@@   @@@@@@    @@@@@@   @@@ @@@   @@@@@@@@  @@@  @@@@@@@ ~
        @@@@@@@@  @@@@@@@@  @@@@@@@   @@@ @@@  @@@@@@@@@  @@@  @@@@@@@ ~
@@ -361,10 +361,10 @@ CHANGELOG				*easygit-changelog*
 
 0.2.0	2016-1-5
 	- added Gmv Grm and Grename
+	- added easygit_auto_lcd option
 ==============================================================================
 TODO				 	*easygit-todo*
 
-* TODO gremove and gmove
 * TODO command option complete and git files for Gcommit
 * TODO git branch complete for Gedit/Gco
 

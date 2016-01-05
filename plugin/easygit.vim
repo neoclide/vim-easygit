@@ -104,19 +104,18 @@ augroup easygit
   autocmd BufWinLeave __easygit__file* call s:Onbufleave()
 augroup END
 
-" TODO autocmd for auto lcd
 " TODO Gstatus for add remove commit changes
 " TODO git branch complete for Gedit/Gco
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                           :call easygit#cd(0)
   command! -nargs=0 Glcd                          :call easygit#cd(1)
+  command! -nargs=0 Gca                           :call s:CommitAll()
+  command! -nargs=0 Gblame                        :call easygit#blame()
+  command! -nargs=+ Gci                           :call easygit#commitCurrent(<q-args>)
   command! -nargs=* -complete=file Gco            :call easygit#checkout(<q-args>)
   command! -nargs=* -complete=file Gedit          :call s:Edit(<q-args>)
   command! -nargs=* Gdiff                         :call s:DiffShow(<q-args>)
-  command! -nargs=+ Gci                           :call easygit#commitCurrent(<q-args>)
-  command! -nargs=0 Gca                           :call s:CommitAll()
   command! -nargs=? GdiffThis                     :call s:DiffThis(<q-args>)
-  command! -nargs=0 Gblame                        :call easygit#blame()
   command! -nargs=+ -complete=custom,s:GitFiles   Gcommit :call easygit#commit(<q-args>)
   command! -nargs=* -bang -complete=custom,s:GitFiles Gremove  :call s:Remove('<bang>', <f-args>)
   command! -nargs=1 -bang -complete=custom,s:GitFiles Grename  :call s:Rename('<bang>', <f-args>)

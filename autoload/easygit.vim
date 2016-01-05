@@ -1,7 +1,7 @@
 " ============================================================================
 " Description: Functions used by easygit
 " Author: Qiming Zhao <chemzqm@gmail.com>
-" Licence: Vim licence
+" Licence: MIT licence
 " Version: 0.1
 " Last Modified:  January 4, 2016
 " ============================================================================
