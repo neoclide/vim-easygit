@@ -9,12 +9,24 @@
 " Extract git directory by bufffer expr
 function! easygit#gitdir(buf, ...) abort
   let suspend = a:0 && a:1 != 0
-  let path = escape(fnamemodify(bufname(a:buf) , ':p'), ' ')
-  let gitdir = substitute(fnamemodify(finddir('.git', path . ';'), ':p'), '/$', '', '')
+  let path = fnamemodify(bufname(a:buf) , ':p')
+  let gitdir = s:FindGitdir(path)
   if empty(gitdir) && !suspend
-    echohl Error | echon 'Git directory no found' | echohl None
+    echohl Error | echon 'Git directory not found' | echohl None
   endif
   return gitdir
+endfunction
+
+function! s:FindGitdir(path)
+  let path = a:path
+  while path =~# '\v/.+/'
+    let dir = simplify(path . '/.git')
+    if isdirectory(dir)
+      return dir
+    endif
+    let path = substitute(path, '\v[^/]+/?$', '', '')
+  endw
+  return ''
 endfunction
 
 " cd or lcd to base directory
@@ -436,20 +448,23 @@ function! easygit#remove(force, args)
   endfor
 endfunction
 
-" list files in git repository of current file
-function! easygit#listfiles(A, L, P)
+function! easygit#complete(file, branch, tag)
   let root = fnamemodify(easygit#gitdir('%'), ':h')
+  let output = ''
   let cwd = getcwd()
   if cwd !~ '^' .root
     exe 'lcd ' . root
   endif
-  let command = 'git ls-tree --name-only -r HEAD'
-  let output = system(command)
-  exe 'lcd ' . cwd
-  if v:shell_error && output !=# ""
-    echohl Error | echon output | echohl None
-    return ''
+  if a:file
+    let output .= s:system('git ls-tree --name-only -r HEAD')
   endif
+  if a:branch
+    let output .= s:system('git branch --no-color -a | cut -c3- | sed ''s:^remotes\/::''')
+  endif
+  if a:tag
+    let output .= s:system('git tag')
+  endif
+  exe 'lcd ' . cwd
   return output
 endfunction
 
@@ -486,6 +501,15 @@ function! s:execute(cmd, option) abort
     silent! call append(1, list[1:])
   endif
   setlocal buftype=nofile readonly bufhidden=wipe
+endfunction
+
+function! s:system(command)
+  let output = system(a:command)
+  if v:shell_error && output !=# ""
+    echohl Error | echon output | echohl None
+    return ''
+  endif
+  return output
 endfunction
 
 function! s:NextCommit(commit) abort
