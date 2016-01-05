@@ -144,13 +144,13 @@ them off (see |easygit-variable|) if you still want have fugitive installed.
 ------------------------------------------------------------------------------
 COMMANDS 				*easygit-commands*
 
-:Gcd   					*:Gcd*
+:Gcd   						*:Gcd*
 		Make vim :cd to git root directory of current file
 
-:Glcd					*:Glcd*
+:Glcd						*:Glcd*
 		Make vim :lcd to git root directory of current file
 
-:Gca					*:Gca*
+:GcommitAll					*:GcommitAll*
 		Open a new buffer and commit all your changes, like running:
 
 		git commit -a -v
@@ -159,12 +159,12 @@ COMMANDS 				*easygit-commands*
 		and continued when you quit the buffer, just like the command
 		line behaviour.
 
-:Gci {messages}				*:Gci*
+:GcommitCurrent {messages}			*:GcommitCurrent*
 		Quickly commit changes of current buffer with {messages}, no
 		need to escape the space or quote the messages ,and no `press
 		enter to continue` would bother you.
 
-:Gco [{command}]			*:Gco*
+:Gcheckout [{command}]				*:Gcheckout*
 		With out {command}, this would checkout current buffer, just
 		like
 			git checkout -- path-to-current-file
@@ -175,20 +175,20 @@ COMMANDS 				*easygit-commands*
 		you can checkout anything supported by git checkout like
 		branch and revision.
 
-:Gedit [{command}]			*:Gedit*
+:Gedit [{command}]				*:Gedit*
 		Open a buffer that contains the ouput from git show, the
 		{command} arguments is passed to git show, without {command},
 		the head commit would shown, the same behaviour as git show
 
-:Gcommit {command}			*:Gcommit*
+:Gcommit {command}				*:Gcommit*
 		Run git commit with {command} as arguments
 
-:GdiffThis [{revison}]			*:GdiffThis*
+:GdiffThis [{revison}]				*:GdiffThis*
 		Diff current file with the same one in revision(default head)
 		side by side.  The diff status would be restored after you
 		quit all diff buffer.
 
-:Gdiff [{command}]			*:Gdiff*
+:Gdiff [{command}]				*:Gdiff*
 		Show a git diff buffer that contains the result from git diff
 		command.  Without {command}, the unstaged changes would be
 		shown, just like git diff.
@@ -196,7 +196,7 @@ COMMANDS 				*easygit-commands*
 		Note only works when vim CWD within git control. You can use
 		|:Gcd| or |:Glcd| when necessary.
 
-:Gblame 				*:Gblame*
+:Gblame 					*:Gblame*
 		Run git blame with current buffer, the blame buffer would take
 		place of current buffer, you can make use of |easygit-d| and
 		|easygit-p| to interactive with this buffer.
@@ -241,7 +241,6 @@ necessary, easygit comes with pretty good default options
 	buffer enter
 
 		let easygit_auto_lcd = 1
-
 
 *g:easygit_disable_command*
 	To disable all the commands of easygit, use: >
