@@ -6,11 +6,16 @@
 " Last Modified:  January 4, 2016
 " ============================================================================
 
-" Extract git directory by bufffer expr
+" Extract git directory by bufffer expr use CWD as fallback
+" if suspend is given as a:1, no error message
 function! easygit#gitdir(buf, ...) abort
   let suspend = a:0 && a:1 != 0
   let path = fnamemodify(bufname(a:buf) , ':p')
   let gitdir = s:FindGitdir(path)
+  " use current directory as fallback
+  if empty(gitdir) && isdirectory(simplify(getcwd(). '/.git'))
+    let gitdir = getcwd() . '/.git'
+  endif
   if empty(gitdir) && !suspend
     echohl Error | echon 'Git directory not found' | echohl None
   endif
@@ -491,9 +496,7 @@ function! s:execute(cmd, option) abort
     return -1
   endif
   execute edit . ' ' . a:option.title
-  if mapcheck('q', 'n') ==# ''
-    exe 'nnoremap <buffer> <silent> q :call <SID>SmartQuit("' . edit . '")<cr>'
-  endif
+  exe 'nnoremap <buffer> <silent> q :call <SID>SmartQuit("' . edit . '")<cr>'
   let b:easygit_prebufnr = bnr
   let list = split(output, '\v\n')
   if len(list)
