@@ -236,30 +236,37 @@ necessary, easygit comes with pretty good default options
 
 ------------------------------------------------------------------------------
 
+*g:easygit_auto_lcd*
+	When set 1, vim will try lcd to your git project root of the buffer on
+	buffer enter
+
+		let easygit_auto_lcd = 1
+
+
 *g:easygit_disable_command*
 	To disable all the commands of easygit, use: >
 
 		let easygit_disable_command = 1
 
 *g:easygit_edit_edit_command*
-	configure the edit command for |:Gedit|, eg:
+	configure the edit command for |:Gedit|, eg: >
 		
 		let g:easygit_edit_edit_command = 'vsplit'
-	
+<	
 	to make the buffer open in vertical split view.
 
 *g:easygit_edit_fold*
-	By default, the buffer of |:Gedit| would fold, set
+	By default, the buffer of |:Gedit| would fold, set >
 
 		let g:easygit_edit_fold = 0
-
+<
 	to disable the fold on buffer read
 
 *g:easygit_diff_edit_command*
-	The edit command for |:Gdiff|, eg:
+	The edit command for |:Gdiff|, eg: >
 
 		let g:easygit_diff_edit_command = 'pedit'
-	
+<	
 	to make the buffer open in preview window
 
 *g:easygit_diff_this_edit*
