@@ -91,10 +91,6 @@ overhead complexity.  As a result, it will not wrap everything that git can
 do.  If you want feature rich, you should use |vim-fugitive|, here is the list of
 features that will not be implemented:
 
-	* Open in browser, since the code would sucks, and most people rarely
-	need this, if you need, install a plugin do the browser job for you,
-	eg: https://github.com/tyru/open-browser-github.vim
-
 	* Git merge, if you use git merge commonly, it would be a better idea to
 	run it in command line, easygit can't help you merge files, use the best
 	tools.
@@ -103,33 +99,6 @@ features that will not be implemented:
 	in a separate plugin https://github.com/chemzqm/unite-git-log, witch
 	using |unite.vim|, with the power of unite, your life with git log would
 	much easier.
-
-	* Git grep, you can easily make vim's :grep command use git grep, see
-	http://vim.wikia.com/wiki/Git_grep, if you need git grep output the
-	column number which you can jump to, make a executable file named
-	grepprg and including code below:
->
-
-	#! /bin/bash
-
-	git --no-pager grep --no-color --no-index --exclude-standard -n $1
-		\| while read git_grep; do
-
-	  file_and_line=$(echo "$git_grep" | cut -d : -f 1,2)
-	  match=$(echo "$git_grep" | sed 's/[^:]*:[^:]*:\(.*\)/\1/')
-	  column=$(echo "$match" | awk "{print index(\$0, \"$1\")}")
-
-	  echo "$file_and_line:$column:$match"
-	done
-<
-	Then config vim to use it >
-
-	set grepprg=grepprg\ $*
-	set grepformat=%f:%l:%c:%m
-<	
-	Now, your :grep commands would use git grep.
-
-	* Git stash, it's a useful command, but rarely used indeed.
 
 ==============================================================================
 INTERFACE				*easygit-interface*
@@ -343,10 +312,15 @@ CHANGELOG				*easygit-changelog*
 	- added easygit_auto_lcd option
 	- added complete functions for all commands
 
+0.2.1	2016-1-6
+	- Use SmartRoot for command root
+
 ==============================================================================
 TODO				 	*easygit-todo*
 
 * TODO Gstatus for add remove file(s) and show the changes
+* TODO Gpull Gpush Gfetch use dispatch/vim-iterm-start
+* TDOO Ggrep
 
 ==============================================================================
 
