@@ -91,7 +91,7 @@ endfunction
 
 " Tag and Branch
 function! s:CompleteCheckout(A, L, P)
-  return easygit#complete(0, 1, 1)
+  return easygit#complete(1, 1, 1)
 endfunction
 
 function! s:CompleteDiff()
