@@ -91,7 +91,7 @@ endfunction
 
 " Tag and Branch
 function! s:CompleteCheckout(A, L, P)
-  return easygit#complete(1, 1, 1)
+  return easygit#completeCheckout()
 endfunction
 
 function! s:CompleteDiff()
@@ -122,6 +122,7 @@ if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=+ GcommitCurrent                 :call easygit#commitCurrent(<q-args>)
   command! -nargs=? -complete=custom,s:CompleteDiffThis  GdiffThis :call s:DiffThis(<q-args>)
   command! -nargs=+ -complete=custom,s:GitFiles          Gcommit   :call easygit#commit(<q-args>)
+  command! -nargs=* -complete=custom,s:GitFiles          Ggrep     :call s:Remove('<bang>', <f-args>)
   command! -nargs=* -complete=custom,s:CompleteShow      Gedit     :call s:Edit(<q-args>)
   command! -nargs=* -complete=custom,s:CompleteDiff      Gdiff     :call s:DiffShow(<q-args>)
   command! -nargs=* -bang -complete=custom,s:GitFiles    Gremove   :call s:Remove('<bang>', <f-args>)

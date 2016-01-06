@@ -479,6 +479,17 @@ function! easygit#complete(file, branch, tag)
   return output
 endfunction
 
+function! easygit#completeCheckout(...)
+  let root = easygit#smartRoot()
+  let output = ''
+  let cwd = getcwd()
+  exe 'lcd ' . root
+  let output .= s:system('git branch --no-color | cut -c3-')
+  let output .= s:system('git ls-files -m --exclude-standard')
+  exe 'lcd ' . cwd
+  return output
+endfunction
+
 function! easygit#listRemotes(...)
   let root = easygit#smartRoot()
   if empty(root) | return | endif

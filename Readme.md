@@ -8,7 +8,7 @@ The goal is cleaner code, and be more friendly to user.
 * *Consist behaviour*, command always work in the git directory of current file
 * *Be quiet*, no ugly *press any key to continue*, and use dispatch method when
   possible
-* *Clean code*, avoid madnes hack like errorformat etc.
+* *Clean code*, avoid madness hack like errorformat etc.
 * *Friendly keymaping*, when enter temporary buffer precess `q` would help you to
   quit, no close window if opened by `edit` command
 * *Expose flexible API*, in `autoload/easygit.vim`
