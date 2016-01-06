@@ -74,34 +74,34 @@ function! s:Remove(bang, ...)
 endfunction
 
 function! s:GitFiles(A, L, P)
-  return easygit#complete(1, 0, 0, 0)
+  return easygit#complete(1, 0, 0)
 endfunction
 
 function! s:TryGitlcd()
   if &buftype =~# '\v(nofile|help)' | return | endif
   if &previewwindow | return | endif
   let gitdir = easygit#gitdir(expand('%'), 1)
-  if empty(gitdir) | return | endif
-  let cwd = getcwd()
+  if empty(gitdir) | return '' | endif
   let root = fnamemodify(gitdir, ':h')
-  if cwd !~ '^' . root
-    exe 'lcd ' . root
+  let cwd = getcwd()
+  if cwd !~# '^' . root
+    exe 'lcd ' .root
   endif
 endfunction
 
 " Tag and Branch
 function! s:CompleteCheckout(A, L, P)
-  return easygit#complete(0, 1, 1, 0)
+  return easygit#complete(0, 1, 1)
 endfunction
 
 " Branch
 function! s:CompleteShow(A, L, P)
-  return easygit#complete(0, 1, 0, 0)
+  return easygit#complete(0, 1, 0)
 endfunction
 
 " File and Branch
 function! s:CompleteDiff(A, L, P)
-  return easygit#complete(1, 1, 0, 0)
+  return easygit#complete(1, 1, 0)
 endfunction
 
 augroup easygit

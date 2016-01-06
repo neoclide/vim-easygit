@@ -41,9 +41,8 @@ endfunction
 " `cmd` string options for git checkout
 " Checkout current file if cmd empty
 function! easygit#checkout(cmd) abort
-  let gitdir = easygit#gitdir(expand('%'))
-  if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
   if len(a:cmd)
@@ -60,7 +59,7 @@ function! easygit#checkout(cmd) abort
     echo 'done'
   endif
   execute 'silent lcd ' . old_cwd
-  execute 'silent edit! ' . expand('%:p')
+  execute 'silent edit!'
 endfunction
 
 " show the commit ref with `option.edit` and `option.all`
@@ -72,7 +71,8 @@ endfunction
 " `option.gitdir` could contain gitdir to work on
 function! easygit#show(args, option) abort
   let fold = get(a:option, 'fold', 1)
-  let gitdir = get(a:option, 'gitdir', easygit#gitdir(expand('%')))
+  let gitdir = get(a:option, 'gitdir', '')
+  if empty(gitdir) | let gitdir = easygit#gitdir(expand('%')) | endif
   if empty(gitdir) | return | endif
   let showall = get(a:option, 'all', 0)
   let format = '--pretty=format:''commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b'' '
@@ -103,19 +103,21 @@ function! easygit#show(args, option) abort
 endfunction
 
 function! s:ShowParentCommit() abort
-  let next_commit = matchstr(getline(2), '\v\s\zs.+$')
-  call easygit#show(next_commit, {
+  let commit = matchstr(getline(2), '\v\s\zs.+$')
+  call easygit#show(commit, {
         \ 'eidt': 'edit',
+        \ 'gitdir': b:gitdir,
         \ 'all': 1,
         \})
 endfunction
 
 function! s:ShowNextCommit() abort
-  let cur_commit = matchstr(getline(1), '\v\s\zs.+$')
-  let commit = s:NextCommit(cur_commit)
+  let commit = matchstr(getline(1), '\v\s\zs.+$')
+  let commit = s:NextCommit(commit, b:gitdir)
   if empty(commit) | return | endif
   call easygit#show(commit, {
         \ 'eidt': 'edit',
+        \ 'gitdir': b:gitdir,
         \ 'all': 1,
         \})
 endfunction
@@ -206,9 +208,8 @@ endfunction
 " Show diff window with optional command args or `git diff`
 function! easygit#diffShow(args, ...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let gitdir = easygit#gitdir(expand('%'))
-  if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
   let command = 'git --no-pager diff --no-color ' . a:args
@@ -230,9 +231,8 @@ function! easygit#commitCurrent(args) abort
     echohl Error | echon 'Msg should not empty' | echohl None
     return
   endif
-  let gitdir = easygit#gitdir(expand('%'))
-  if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
   let file = bufname('%')
@@ -250,54 +250,49 @@ endfunction
 " blame current file
 function! easygit#blame(...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let gitdir = easygit#gitdir(expand('%'))
-  if empty(gitdir) | return | endif
-  let bname = bufname('%')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  " source bufnr
+  let bnr = bufnr('%')
+  execute 'lcd ' . root
   let view = winsaveview()
-  let root = fnamemodify(gitdir, ':h')
-  let file = substitute(expand('%:p'), root . '/', '', '')
-  let cmd = 'git --no-pager --git-dir=' . gitdir
-      \. ' blame -- ' . expand('%:p')
+  let cmd = 'git --no-pager blame -- ' . expand('%')
   let opt = {
         \ "edit": edit,
         \ "title": '__easygit__blame__',
         \}
   let res = s:execute(cmd, opt)
   if res == -1 | return | endif
+  execute 'lcd ' . cwd
   setlocal filetype=easygitblame
-  let lnum = getcurpos()[1]
   call winrestview(view)
   call s:blameHighlight()
-  let b:gitdir = gitdir
-  exe 'nnoremap <buffer> <silent> d :call <SID>DiffFromBlame("' . bname . '")<cr>'
-  exe 'nnoremap <buffer> <silent> p :call <SID>ShowRefFromBlame("' . bname . '")<cr>'
+  exe 'nnoremap <buffer> <silent> d :call <SID>DiffFromBlame(' . bnr . ')<cr>'
+  exe 'nnoremap <buffer> <silent> p :call <SID>ShowRefFromBlame(' . bnr . ')<cr>'
 endfunction
 
-function! s:DiffFromBlame(bname) abort
+function! s:DiffFromBlame(bnr) abort
   let commit = matchstr(getline('.'),'^\^\=\zs\x\+')
-  let bnr = bufnr('%')
-  let wnr = bufwinnr(a:bname)
+  let wnr = bufwinnr(a:bnr)
   if wnr == -1
-    execute 'silent e ' . a:bname
+    execute 'silent b ' . a:bnr
   else
     execute wnr . 'wincmd w'
   endif
   call easygit#diffThis(commit)
-  if wnr == -1
-    let b:blame_bufnr = bnr
-  endif
+  if wnr == -1 | let b:blame_bufnr = a:bnr | endif
 endfunction
 
-function! s:ShowRefFromBlame(bname) abort
+function! s:ShowRefFromBlame(bnr) abort
   let commit = matchstr(getline('.'),'^\^\=\zs\x\+')
-  let gitdir = get(b:, 'gitdir', '')
+  let gitdir = easygit#gitdir(bufname(a:bnr))
+  if empty(gitdir) | return | endif
   let root = fnamemodify(gitdir, ':h')
-  let file = substitute(fnamemodify(a:bname, ':p'),
-      \ root . '/', '', '')
   let option = {
     \ 'edit': 'split',
+    \ 'gitdir': gitdir,
     \ 'all' : 1,
-    \ 'file': file,
     \}
   call easygit#show(commit, option)
 endfunction
@@ -356,7 +351,11 @@ endfunction
 function! easygit#commit(args, ...) abort
   let gitdir = a:0 ? a:1 : easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
+  if exists('b:easygit_commit_root')
+    let root = b:easygit_commit_root
+  else
+    let root = easygit#SmartRoot()
+  endif
   let old_cwd = getcwd()
   let edit = 'keepalt '. get(g:, 'easygit_commit_edit', 'split')
   execute 'lcd ' . root
@@ -382,7 +381,7 @@ function! easygit#commit(args, ...) abort
     if error !~# 'false''\=\.$' | return | endif
     call delete(out)
     let msgfile = gitdir . '/COMMIT_EDITMSG'
-    execute edit . ' ' . fnameescape(msgfile)
+    execute 'silent' edit fnameescape(msgfile)
     let args = a:args
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-[esp]|--edit|--interactive|--patch|--signoff)%($| )','')
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-c|--reedit-message|--reuse-message|-F|--file|-m|--message)%(\s+|\=)%(''[^'']*''|"%(\\.|[^"])*"|\\.|\S)*','')
@@ -392,6 +391,7 @@ function! easygit#commit(args, ...) abort
     if args !~# '\%(^\| \)--cleanup\>'
       let args = '--cleanup=strip '.args
     endif
+    let b:easygit_commit_root = root
     let b:easygit_commit_arguments = args
     setlocal bufhidden=wipe filetype=gitcommit
   endif
@@ -399,13 +399,11 @@ endfunction
 
 function! easygit#move(force, source, destination) abort
   if a:source ==# a:destination | return | endif
-  let gitdir = easygit#gitdir(expand('%'))
-  let root = fnamemodify(gitdir, ':h')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'lcd ' . root
   let source = empty(a:source) ? bufname('%') : a:source
-  if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
   let command = 'git mv ' . (a:force ? '-f ': '') . source . ' ' . a:destination
   let output = system(command)
   if v:shell_error && output !=# ""
@@ -430,9 +428,8 @@ function! easygit#move(force, source, destination) abort
 endfunction
 
 function! easygit#remove(force, args, current)
-  let gitdir = easygit#gitdir(expand('%'))
-  if empty(gitdir) | return | endif
-  let root = fnamemodify(gitdir, ':h')
+  let root = easygit#SmartRoot()
+  if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'lcd ' . root
   let list = split(a:args, '\v[^\\]\zs\s')
@@ -440,6 +437,7 @@ function! easygit#remove(force, args, current)
     \'substitute(v:val, "^\\./", "", "")')
   let force =  a:force && a:args !~# '\v<-f>' ? '-f ' : ''
   let cname = substitute(expand('%'), ' ', '\\ ', 'g')
+  if a:current | call add(files, cname) | endif
   let command = 'git rm ' . force . a:args
   let command .= a:current ? cname : ''
   let output = system(command)
@@ -464,14 +462,11 @@ function! easygit#remove(force, args, current)
   execute 'lcd ' . old_cwd
 endfunction
 
-function! easygit#complete(file, branch, tag, cwd)
-  let from = a:cwd ? getcwd() : expand('%')
-  let root = fnamemodify(easygit#gitdir(from), ':h')
+function! easygit#complete(file, branch, tag)
+  let root = easygit#SmartRoot()
   let output = ''
   let cwd = getcwd()
-  if cwd !~ '^' .root
-    exe 'lcd ' . root
-  endif
+  exe 'lcd ' . root
   if a:file
     let output .= s:system('git ls-tree --name-only -r HEAD')
   endif
@@ -483,6 +478,15 @@ function! easygit#complete(file, branch, tag, cwd)
   endif
   exe 'lcd ' . cwd
   return output
+endfunction
+
+" If cwd inside current file git root, return cwd, otherwise return git root
+function! easygit#SmartRoot()
+  let gitdir = easygit#gitdir(expand('%'))
+  if empty(gitdir) | return '' | endif
+  let root = fnamemodify(gitdir, ':h')
+  let cwd = getcwd()
+  return cwd =~# '^' . root ? cwd : root
 endfunction
 
 " Execute command and show the result by options
@@ -527,8 +531,10 @@ function! s:system(command)
   return output
 endfunction
 
-function! s:NextCommit(commit) abort
-  let output = system('git log --reverse --ancestry-path ' . a:commit . '..master | head -n 1 | cut -d \  -f 2')
+function! s:NextCommit(commit, gitdir) abort
+  let output = system('git --git-dir=' . a:gitdir
+        \. 'log --reverse --ancestry-path '
+        \. a:commit . '..master | head -n 1 | cut -d \  -f 2')
   if v:shell_error && output !=# ""
     echohl Error | echon output | echohl None
     return
@@ -547,7 +553,9 @@ function! s:SmartQuit(edit)
   else
     exe 'q'
   endif
-  if !empty(bnr) | call easygit#blame() | endif
+  if !empty(bnr)
+    call easygit#blame()
+  endif
 endfunction
 
 function! s:sub(str,pat,rep) abort
