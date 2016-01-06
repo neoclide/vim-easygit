@@ -94,13 +94,17 @@ function! s:CompleteCheckout(A, L, P)
   return easygit#complete(0, 1, 1)
 endfunction
 
+function! s:CompleteDiff()
+  return easygit#complete(0, 1, 0)
+endfunction
+
 " Branch
 function! s:CompleteShow(A, L, P)
   return easygit#complete(0, 1, 0)
 endfunction
 
 " File and Branch
-function! s:CompleteDiff(A, L, P)
+function! s:CompleteDiffThis(A, L, P)
   return easygit#complete(1, 1, 0)
 endfunction
 
@@ -111,20 +115,22 @@ augroup easygit
 augroup END
 
 " TODO Gstatus for add remove commit changes
-" TODO Gpull Gpush Gfetch
 if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                            :call easygit#cd(0)
   command! -nargs=0 Glcd                           :call easygit#cd(1)
   command! -nargs=0 Gblame                         :call easygit#blame()
   command! -nargs=+ GcommitCurrent                 :call easygit#commitCurrent(<q-args>)
-  command! -nargs=? GdiffThis                      :call s:DiffThis(<q-args>)
-  command! -nargs=+ -complete=custom,s:GitFiles       Gcommit     :call easygit#commit(<q-args>)
-  command! -nargs=* -complete=custom,s:CompleteShow   Gedit       :call s:Edit(<q-args>)
-  command! -nargs=* -complete=custom,s:CompleteDiff   Gdiff       :call s:DiffShow(<q-args>)
-  command! -nargs=* -bang -complete=custom,s:GitFiles Gremove     :call s:Remove('<bang>', <f-args>)
-  command! -nargs=1 -bang -complete=custom,s:GitFiles Grename     :call s:Rename('<bang>', <f-args>)
-  command! -nargs=+ -bang -complete=custom,s:GitFiles Gmove       :call s:Move('<bang>', <f-args>)
-  command! -nargs=* -complete=custom,s:CompleteCheckout Gcheckout :call easygit#checkout(<q-args>)
+  command! -nargs=? -complete=custom,s:CompleteDiffThis  GdiffThis :call s:DiffThis(<q-args>)
+  command! -nargs=+ -complete=custom,s:GitFiles          Gcommit   :call easygit#commit(<q-args>)
+  command! -nargs=* -complete=custom,s:CompleteShow      Gedit     :call s:Edit(<q-args>)
+  command! -nargs=* -complete=custom,s:CompleteDiff      Gdiff     :call s:DiffShow(<q-args>)
+  command! -nargs=* -bang -complete=custom,s:GitFiles    Gremove   :call s:Remove('<bang>', <f-args>)
+  command! -nargs=1 -bang -complete=custom,s:GitFiles    Grename   :call s:Rename('<bang>', <f-args>)
+  command! -nargs=+ -bang -complete=custom,s:GitFiles    Gmove     :call s:Move('<bang>', <f-args>)
+  command! -nargs=* -complete=custom,s:CompleteCheckout  Gcheckout :call easygit#checkout(<q-args>)
+  command! -nargs=* -complete=custom,easygit#listRemotes Gpush     :call easygit#dispatch('push', <q-args>)
+  command! -nargs=* -complete=custom,easygit#listRemotes Gfetch    :call easygit#dispatch('fetch', <q-args>)
+  command! -nargs=* -complete=custom,easygit#listRemotes Gpull     :call easygit#dispatch('pull', <q-args>)
 endif
 
 " enable auto lcd
@@ -134,3 +140,5 @@ if get(g:, 'easygit_auto_lcd', 0)
     autocmd BufWinEnter,BufReadPost * call s:TryGitlcd()
   augroup end
 endif
+
+"vim:set et sw=2 ts=2 tw=80:

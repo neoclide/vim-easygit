@@ -9,12 +9,12 @@ user.
 * *Consist behaviour*, command always work in the git directory of current file
 * *Be quiet*, no ugly *press any key to continue*, and use dispatch method when
   possible
-* *Clean code*, avoid ugly hack as much as possible
+* *Clean code*, avoid madnes hack like errorformat etc.
 * *Friendly keymaping*, when enter temporary buffer precess `q` would help you to
   quit, no close window if opened by `edit` command
 * *Expose flexible API*, in `autoload/easygit.vim`
 * *Works good with other plugins* since filetype is nofile, your mru plugin and
-  status line plugin should easily ignore them, you can disable all comands
+  status line plugin should easily ignore them, you can disable all commands
   with `let g:easygit_disable_command = 1` to make it works in fugitive.
 
 

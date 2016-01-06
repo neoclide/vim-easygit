@@ -41,7 +41,7 @@ endfunction
 " `cmd` string options for git checkout
 " Checkout current file if cmd empty
 function! easygit#checkout(cmd) abort
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
@@ -208,7 +208,7 @@ endfunction
 " Show diff window with optional command args or `git diff`
 function! easygit#diffShow(args, ...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
@@ -231,7 +231,7 @@ function! easygit#commitCurrent(args) abort
     echohl Error | echon 'Msg should not empty' | echohl None
     return
   endif
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'silent lcd '. root
@@ -250,7 +250,7 @@ endfunction
 " blame current file
 function! easygit#blame(...) abort
   let edit = a:0 ? a:1 : 'edit'
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let cwd = getcwd()
   " source bufnr
@@ -354,7 +354,7 @@ function! easygit#commit(args, ...) abort
   if exists('b:easygit_commit_root')
     let root = b:easygit_commit_root
   else
-    let root = easygit#SmartRoot()
+    let root = easygit#smartRoot()
   endif
   let old_cwd = getcwd()
   let edit = 'keepalt '. get(g:, 'easygit_commit_edit', 'split')
@@ -399,7 +399,7 @@ endfunction
 
 function! easygit#move(force, source, destination) abort
   if a:source ==# a:destination | return | endif
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'lcd ' . root
@@ -428,7 +428,7 @@ function! easygit#move(force, source, destination) abort
 endfunction
 
 function! easygit#remove(force, args, current)
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
   execute 'lcd ' . root
@@ -463,7 +463,7 @@ function! easygit#remove(force, args, current)
 endfunction
 
 function! easygit#complete(file, branch, tag)
-  let root = easygit#SmartRoot()
+  let root = easygit#smartRoot()
   let output = ''
   let cwd = getcwd()
   exe 'lcd ' . root
@@ -480,8 +480,18 @@ function! easygit#complete(file, branch, tag)
   return output
 endfunction
 
+function! easygit#listRemotes(...)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  exe 'lcd ' . root
+  let output = s:system('git branch -r | sed ''s:/.*::''|uniq')
+  exe 'lcd ' . cwd
+  return substitute(output, '\v(^|\n)\zs\s*', '', 'g')
+endfunction
+
 " If cwd inside current file git root, return cwd, otherwise return git root
-function! easygit#SmartRoot()
+function! easygit#smartRoot()
   let gitdir = easygit#gitdir(expand('%'))
   if empty(gitdir) | return '' | endif
   let root = fnamemodify(gitdir, ':h')
@@ -566,4 +576,26 @@ function! s:gsub(str,pat,rep) abort
   return substitute(a:str,'\v\C'.a:pat,a:rep,'g')
 endfunction
 
+function! easygit#dispatch(name, args)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  let cmd = 'git ' . a:name . ' ' . a:args
+  if !has('gui_running')
+    exe 'lcd ' . root
+    exe '!' . cmd
+    exe 'lcd ' . cwd
+  else
+    let title = 'easygit-' . a:name
+    if exists(':Start')
+      exe 'Start! -title=' . title . ' -dir=' . root
+          \. ' ' . cmd
+    elseif exists(':ItermStartTab')
+      exe 'ItermStartTab! -title=' . title . ' -dir=' . root
+          \. ' ' . cmd
+    else
+      exe '!' . cmd
+    endif
+  endif
+endfunction
 " vim:set et sw=2 ts=2 tw=78:

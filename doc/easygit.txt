@@ -313,7 +313,7 @@ CHANGELOG				*easygit-changelog*
 	- added complete functions for all commands
 
 0.2.1	2016-1-6
-	- Use SmartRoot for command root
+	- Use smartRoot for command root
 
 ==============================================================================
 TODO				 	*easygit-todo*
