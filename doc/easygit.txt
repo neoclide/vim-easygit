@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.1.0
-Last Change	: Jan 04 2016
+Version		: 0.2.1
+Last Change	: Jan 06 2016
 
 License : MIT license {{{
 
@@ -314,12 +314,12 @@ CHANGELOG				*easygit-changelog*
 
 0.2.1	2016-1-6
 	- Use smartRoot for command root
+	- added Gpull Gpush Gfetch
 
 ==============================================================================
 TODO				 	*easygit-todo*
 
 * TODO Gstatus for add remove file(s) and show the changes
-* TODO Gpull Gpush Gfetch use dispatch/vim-iterm-start
 * TDOO Ggrep
 
 ==============================================================================
