@@ -1,7 +1,7 @@
-if exists('did_easygit_loaded') || v:version < 700
+if exists('g:did_easygit_loaded') || v:version < 700
   finish
 endif
-let did_easygit_loaded = 1
+let g:did_easygit_loaded = 1
 
 function! s:FinishCommit() abort
   let args = getbufvar(+expand('<abuf>'),'easygit_commit_arguments')
