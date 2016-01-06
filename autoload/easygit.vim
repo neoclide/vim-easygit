@@ -38,7 +38,7 @@ function! easygit#cd(local) abort
   exe cmd . ' ' . fnamemodify(dir, ':h')
 endfunction
 
-" `cmd` string options for git checkout
+" `cmd` string for git checkout
 " Checkout current file if cmd empty
 function! easygit#checkout(cmd) abort
   let root = easygit#smartRoot()
@@ -59,7 +59,6 @@ function! easygit#checkout(cmd) abort
     echo 'done'
   endif
   execute 'silent lcd ' . old_cwd
-  execute 'silent edit!'
 endfunction
 
 " show the commit ref with `option.edit` and `option.all`
