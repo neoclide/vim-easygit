@@ -373,6 +373,8 @@ function! easygit#commit(args, ...) abort
       else
         echo 'done'
       endif
+      let tnr = tabpagenr()
+      exe tnr . 'tab b ' . b:easygit_commit_bufnr
     endif
     execute 'lcd ' . old_cwd
     if !v:shell_error | return | endif
@@ -383,6 +385,7 @@ function! easygit#commit(args, ...) abort
     if error !~# 'false''\=\.$' | return | endif
     call delete(out)
     let msgfile = gitdir . '/COMMIT_EDITMSG'
+    let bnr = bufnr('%')
     execute 'silent' edit fnameescape(msgfile)
     let args = a:args
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-[esp]|--edit|--interactive|--patch|--signoff)%($| )','')
@@ -393,6 +396,7 @@ function! easygit#commit(args, ...) abort
     if args !~# '\%(^\| \)--cleanup\>'
       let args = '--cleanup=strip '.args
     endif
+    let b:easygit_commit_bufnr = bnr
     let b:easygit_commit_root = root
     let b:easygit_commit_arguments = args
     setlocal bufhidden=wipe filetype=gitcommit

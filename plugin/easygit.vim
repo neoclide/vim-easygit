@@ -4,6 +4,7 @@ endif
 let g:did_easygit_loaded = 1
 
 function! s:FinishCommit() abort
+  if !(has('gui_running')) | return | endif
   let args = getbufvar(+expand('<abuf>'),'easygit_commit_arguments')
   if !empty(args)
     call setbufvar(+expand('<abuf>'),'easygit_commit_arguments','')
