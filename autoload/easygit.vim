@@ -366,7 +366,12 @@ function! easygit#commit(args, ...) abort
       if !empty(lines)
         echohl Error | echo join(lines, '\n') | echohl None
       endif
-      if a:0 > 2
+      if tabpagenr('$') == 1
+        if (has('gui_macvim'))
+          let file = fnamemodify(bufname(a:3), ':p')
+          execute '!mvim ' . file
+        endif
+      elseif a:0 > 2
         let tnr = tabpagenr() - 1
         exe tnr . 'tab sb ' . a:3
       endif
