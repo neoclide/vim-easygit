@@ -350,13 +350,8 @@ endfunction
 function! easygit#commit(args, ...) abort
   let gitdir = a:0 ? a:1 : easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
-  if exists('b:easygit_commit_root')
-    let root = b:easygit_commit_root
-  else
-    let root = easygit#smartRoot()
-  endif
+  let root = a:0 > 1 ? a:2 : easygit#smartRoot()
   let old_cwd = getcwd()
-  let edit = 'keepalt '. get(g:, 'easygit_commit_edit', 'split')
   execute 'lcd ' . root
   let cmd = 'git commit ' . a:args
   if !has('gui_running')
@@ -370,11 +365,11 @@ function! easygit#commit(args, ...) abort
       let lines = readfile(out)
       if !empty(lines)
         echohl Error | echo join(lines, '\n') | echohl None
-      else
-        echo 'done'
       endif
-      let tnr = tabpagenr()
-      exe tnr . 'tab b ' . b:easygit_commit_bufnr
+      if a:0 > 2
+        let tnr = tabpagenr() - 1
+        exe tnr . 'tab sb ' . a:3
+      endif
     endif
     execute 'lcd ' . old_cwd
     if !v:shell_error | return | endif
@@ -386,7 +381,7 @@ function! easygit#commit(args, ...) abort
     call delete(out)
     let msgfile = gitdir . '/COMMIT_EDITMSG'
     let bnr = bufnr('%')
-    execute 'silent' edit fnameescape(msgfile)
+    execute 'silent keepalt edit ' . fnameescape(msgfile)
     let args = a:args
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-[esp]|--edit|--interactive|--patch|--signoff)%($| )','')
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-c|--reedit-message|--reuse-message|-F|--file|-m|--message)%(\s+|\=)%(''[^'']*''|"%(\\.|[^"])*"|\\.|\S)*','')
