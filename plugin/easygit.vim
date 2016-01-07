@@ -108,6 +108,17 @@ function! s:CompleteDiffThis(A, L, P)
   return easygit#complete(1, 1, 0)
 endfunction
 
+function! s:CommitCurrent(args)
+  if empty(a:args)
+    let root = easygit#smartRoot()
+    if empty(root) | return | endif
+    let file = substitute(expand('%:p'), root . '/', '', '')
+    call easygit#commit(' -- ' . file)
+  else
+    call easygit#commitCurrent(a:args)
+  endif
+endfunction
+
 augroup easygit
   autocmd!
   autocmd VimLeavePre,BufDelete COMMIT_EDITMSG call s:FinishCommit()
@@ -119,7 +130,7 @@ if !get(g:, 'easygit_disable_command', 0)
   command! -nargs=0 Gcd                            :call easygit#cd(0)
   command! -nargs=0 Glcd                           :call easygit#cd(1)
   command! -nargs=0 Gblame                         :call easygit#blame()
-  command! -nargs=+ GcommitCurrent                 :call easygit#commitCurrent(<q-args>)
+  command! -nargs=* GcommitCurrent                 :call s:CommitCurrent(<q-args>)
   command! -nargs=? -complete=custom,s:CompleteDiffThis  GdiffThis :call s:DiffThis(<q-args>)
   command! -nargs=+ -complete=custom,s:GitFiles          Gcommit   :call easygit#commit(<q-args>)
   command! -nargs=* -complete=custom,s:GitFiles          Ggrep     :call s:Remove('<bang>', <f-args>)

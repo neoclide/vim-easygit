@@ -365,10 +365,13 @@ function! easygit#commit(args, ...) abort
   else
     let out = tempname()
     noautocmd silent execute '!env GIT_EDITOR=false ' . cmd . ' 2> ' . out
+    " bufleave
     if a:0
       let lines = readfile(out)
       if !empty(lines)
         echohl Error | echo join(lines, '\n') | echohl None
+      else
+        echo 'done'
       endif
     endif
     execute 'lcd ' . old_cwd
