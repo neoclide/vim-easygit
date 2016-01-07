@@ -366,15 +366,6 @@ function! easygit#commit(args, ...) abort
       if !empty(lines)
         echohl Error | echo join(lines, '\n') | echohl None
       endif
-      if tabpagenr('$') == 1
-        if (has('gui_macvim'))
-          let file = fnamemodify(bufname(a:3), ':p')
-          execute '!mvim ' . file
-        endif
-      elseif a:0 > 2
-        let tnr = tabpagenr() - 1
-        exe tnr . 'tab sb ' . a:3
-      endif
     endif
     execute 'lcd ' . old_cwd
     if !v:shell_error | return | endif
@@ -385,8 +376,8 @@ function! easygit#commit(args, ...) abort
     if error !~# 'false''\=\.$' | return | endif
     call delete(out)
     let msgfile = gitdir . '/COMMIT_EDITMSG'
-    let bnr = bufnr('%')
-    execute 'silent keepalt edit ' . fnameescape(msgfile)
+    let h = winheight(0) - 5
+    execute 'silent keepalt ' . h . 'split ' . fnameescape(msgfile)
     let args = a:args
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-[esp]|--edit|--interactive|--patch|--signoff)%($| )','')
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-c|--reedit-message|--reuse-message|-F|--file|-m|--message)%(\s+|\=)%(''[^'']*''|"%(\\.|[^"])*"|\\.|\S)*','')
@@ -396,7 +387,6 @@ function! easygit#commit(args, ...) abort
     if args !~# '\%(^\| \)--cleanup\>'
       let args = '--cleanup=strip '.args
     endif
-    let b:easygit_commit_bufnr = bnr
     let b:easygit_commit_root = root
     let b:easygit_commit_arguments = args
     setlocal bufhidden=wipe filetype=gitcommit

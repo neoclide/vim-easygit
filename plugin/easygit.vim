@@ -10,8 +10,7 @@ function! s:FinishCommit() abort
     call setbufvar(+expand('<abuf>'),'easygit_commit_arguments','')
     let gitdir = fnamemodify(bufname(+expand('<abuf>')), ':p:h')
     let root = getbufvar(+expand('<abuf>'),'easygit_commit_root')
-    let bufnr = getbufvar(+expand('<abuf>'),'easygit_commit_bufnr')
-    return easygit#commit(args, gitdir, root, bufnr)
+    return easygit#commit(args, gitdir, root)
   endif
 endfunction
 
