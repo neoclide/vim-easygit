@@ -9,6 +9,10 @@ function! s:FinishCommit() abort
   if !empty(args)
     call setbufvar(+expand('<abuf>'),'easygit_commit_arguments','')
     let gitdir = fnamemodify(bufname(+expand('<abuf>')), ':p:h')
+    " cat current file content to tmpfile
+    let out = tempname()
+    call system('cat ' . fnamemodify(bufname(+expand('<abuf>')), ':p'). '> ' . out)
+    let args = substitute(args, '\v\s-F\stmp', ' -F ' . out, '')
     let root = getbufvar(+expand('<abuf>'),'easygit_commit_root')
     return easygit#commit(args, gitdir, root)
   endif

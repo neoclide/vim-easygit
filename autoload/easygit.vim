@@ -6,7 +6,7 @@
 " Last Modified:  January 4, 2016
 " ============================================================================
 
-" Extract git directory by bufffer expr use CWD as fallback
+" Extract git directory by path
 " if suspend is given as a:1, no error message
 function! easygit#gitdir(path, ...) abort
   let suspend = a:0 && a:1 != 0
@@ -350,6 +350,7 @@ endfunction
 function! easygit#commit(args, ...) abort
   let gitdir = a:0 ? a:1 : easygit#gitdir(expand('%'))
   if empty(gitdir) | return | endif
+  let msgfile = gitdir . '/COMMIT_EDITMSG'
   let root = a:0 > 1 ? a:2 : easygit#smartRoot()
   let old_cwd = getcwd()
   execute 'lcd ' . root
@@ -360,22 +361,20 @@ function! easygit#commit(args, ...) abort
   else
     let out = tempname()
     noautocmd silent execute '!env GIT_EDITOR=false ' . cmd . ' 2> ' . out
+    execute 'lcd ' . old_cwd
+    let errors = readfile(out)
     " bufleave
     if a:0
-      let lines = readfile(out)
-      if !empty(lines)
-        echohl Error | echo join(lines, '\n') | echohl None
+      if !empty(errors)
+        echohl Error | echo join(errors, '\n') | echohl None
       endif
+      return
     endif
-    execute 'lcd ' . old_cwd
-    if !v:shell_error | return | endif
-    let errors = readfile(out)
     let error = get(errors, -2, get(errors, -1, '!'))
     if error ==# '!' | echo 'nothing commit' | return | endif
     " should contain false
     if error !~# 'false''\=\.$' | return | endif
     call delete(out)
-    let msgfile = gitdir . '/COMMIT_EDITMSG'
     let h = winheight(0) - 5
     execute 'silent keepalt ' . h . 'split ' . fnameescape(msgfile)
     let args = a:args
@@ -383,13 +382,14 @@ function! easygit#commit(args, ...) abort
     let args = s:gsub(args,'%(%(^| )-- )@<!%(^| )@<=%(-c|--reedit-message|--reuse-message|-F|--file|-m|--message)%(\s+|\=)%(''[^'']*''|"%(\\.|[^"])*"|\\.|\S)*','')
     let args = s:gsub(args,'%(^| )@<=[%#]%(:\w)*','\=expand(submatch(0))')
     let args = s:sub(args, '\ze -- |$', ' --no-edit --no-interactive --no-signoff')
-    let args = '-F '. msgfile . ' ' . args
+    let args = '-F tmp ' . args
     if args !~# '\%(^\| \)--cleanup\>'
       let args = '--cleanup=strip '.args
     endif
     let b:easygit_commit_root = root
     let b:easygit_commit_arguments = args
     setlocal bufhidden=wipe filetype=gitcommit
+    return '1'
   endif
 endfunction
 
