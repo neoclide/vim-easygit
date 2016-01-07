@@ -498,8 +498,9 @@ function! easygit#listRemotes(...)
 endfunction
 
 " If cwd inside current file git root, return cwd, otherwise return git root
-function! easygit#smartRoot()
-  let gitdir = easygit#gitdir(expand('%'))
+function! easygit#smartRoot(...)
+  let suspend = a:0 ? a:1 : 0
+  let gitdir = easygit#gitdir(expand('%'), suspend)
   if empty(gitdir) | return '' | endif
   let root = fnamemodify(gitdir, ':h')
   let cwd = getcwd()
