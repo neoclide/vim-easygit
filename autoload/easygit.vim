@@ -44,6 +44,7 @@ function! easygit#checkout(cmd) abort
   let root = easygit#smartRoot()
   if empty(root) | return | endif
   let old_cwd = getcwd()
+  let view = winsaveview()
   execute 'silent lcd '. root
   if len(a:cmd)
     let command = 'git checkout ' . a:cmd
@@ -59,6 +60,7 @@ function! easygit#checkout(cmd) abort
     echo 'done'
   endif
   execute 'silent lcd ' . old_cwd
+  exe 'silent edit'
 endfunction
 
 " show the commit ref with `option.edit` and `option.all`
@@ -244,6 +246,7 @@ function! easygit#commitCurrent(args) abort
     execute 'silent w'
   endif
   execute 'silent lcd ' . old_cwd
+  exe 'silent edit'
 endfunction
 
 " blame current file
@@ -367,6 +370,8 @@ function! easygit#commit(args, ...) abort
     if a:0
       if !empty(errors)
         echohl Error | echo join(errors, '\n') | echohl None
+      else
+        exe 'silent edit'
       endif
       return
     endif
