@@ -119,7 +119,7 @@ function! s:CommitCurrent(args)
     let root = easygit#smartRoot()
     if empty(root) | return | endif
     let file = substitute(expand('%:p'), root . '/', '', '')
-    call easygit#commit(' -- ' . file)
+    call easygit#commit(' -v -- ' . file)
   else
     call easygit#commitCurrent(a:args)
   endif
