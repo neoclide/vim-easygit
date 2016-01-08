@@ -49,7 +49,7 @@ INSTALLATION		|easygit-installation|
 INTERFACE		|easygit-interface|
   COMMANDS			|easygit-commands|
   VARIABLES			|easygit-variables|
-  KEYMAPING			|easygit-keymaping|
+  KEYMAPPING			|easygit-keymapping|
   FUNCTIONS			|easygit-functions|
 CHANGELOG		|easygit-changelog|
 TODO			|easygit-todo|
@@ -88,15 +88,10 @@ PHILOSOPHY				*easygit-philosophy*
 
 Easygit tris hard to works well 80% of daily usage git commands while avoid
 overhead complexity.  As a result, it will not wrap everything that git can
-do.  If you want feature rich, you should use |vim-fugitive|, here is the list of
-features that will not be implemented:
-
-	* Git merge, if you use git merge commonly, it would be a better idea to
-	run it in command line, easygit can't help you merge files, use the best
-	tools.
+do. Features that will not be implemented:
 
 	* Git log, git log is really useful feature, so I want to implement it
-	in a separate plugin https://github.com/chemzqm/unite-git-log, witch
+	in a separate plugin https://github.com/chemzqm/unite-git-log, which
 	using |unite.vim|, with the power of unite, your life with git log would
 	much easier.
 
@@ -137,7 +132,7 @@ All commands are disabed by default to avoid conflict, you have to use
 		branch and revision.
 
 :Gedit [{command}]				*:Gedit*
-		Open a buffer that contains the ouput from git show, the
+		Open a buffer that contains the output from git show, the
 		{command} arguments is passed to git show, without {command},
 		the head commit would shown, the same behaviour as git show
 
@@ -162,12 +157,12 @@ All commands are disabed by default to avoid conflict, you have to use
 		command.  Without {command}, the unstaged changes would be
 		shown, just like git diff.
 
-:Gmove[{bang}] {source} {destination} 	*:Gmove*
+:Gmove[{bang}] {source} {destination} 		*:Gmove*
 		Git mv a file from {source} to {destination}, when {bang} is
 		used, -f option is added for git mv.  If moving current
 		buffer, a new buffer with new bufname would take replace.
 
-:Grename[{bang}] {bufname}		*:Grename*
+:Grename[{bang}] {bufname}			*:Grename*
 		Git rename current buffer to a new {bufname}
 
 
@@ -176,7 +171,11 @@ All commands are disabed by default to avoid conflict, you have to use
 		added for git rm. If no files specified, current file is used,
 		{files} would also be removed from vim's buffer list.
 
+:Gadd {files}...				*:Gadd*
+		Run git add with {files}
 
+:Gstatus 					*:Gstatus*
+		Show git status in a temporary buffer
 
 ==============================================================================
 VARIABLES 				*easygit-variables*
@@ -224,9 +223,9 @@ golbal variables.
 
 
 ==============================================================================
-KEYMAPING				 *easygit-keymaping*
+KEYMAPING				 *easygit-keymapping*
 
-Easygit comes with some handy buffer local keymaping to make your works easier
+Easygit comes with some handy buffer local key mapping to make your works easier
 with the generated buffers.
 
 ------------------------------------------------------------------------------
@@ -299,14 +298,20 @@ easygit#move({force}, {source}, {destination})		*easygit#move*
 
 easygit#remove({force}, {args}, {current}) 		*easygit#remove*
 		Start git remove with {args} for command git rm, append option
-		-f if {force} is ture. The files in {args} string would also
+		-f if {force} is true. The files in {args} string would also
 		be deleted form vim's buffer list, if current is true, remove
 		file of current buffer
 
 easygit#complete({file}, {branch}, {tag}, {cwd})	*easygit#complete*
 		Get the list of git objects for complete, possibly including
-		{file}, {branch}, {tag}, refult is a string separated by line
+		{file}, {branch}, {tag}, result is a string separated by line
 		break. If {cwd} is true, extract git directory from CWD.
+
+easygit#add({files}...) 				*easygit#add*
+		Git add {files}
+
+easygit#status() 					*easygit#status*
+		Show git status in a temporary buffer
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
@@ -325,12 +330,12 @@ CHANGELOG				*easygit-changelog*
 
 0.3.0	2016-1-8
 	- Break change: disable commands by default
+	- add |:Gstatus| |:Gadd|
 
 ==============================================================================
 TODO				 	*easygit-todo*
 
-* TODO Gstatus for add remove file(s) and show the changes
-* TDOO Ggrep
+* TDOO Ggrep, Gmerge
 
 ==============================================================================
 

@@ -492,6 +492,16 @@ function! easygit#completeCheckout(...)
   return output
 endfunction
 
+function! easygit#completeAdd(...)
+  let root = easygit#smartRoot()
+  let output = ''
+  let cwd = getcwd()
+  exe 'lcd ' . root
+  let output .= s:system('git ls-files -m -d -o --exclude-standard')
+  exe 'lcd ' . cwd
+  return output
+endfunction
+
 function! easygit#listRemotes(...)
   let root = easygit#smartRoot()
   if empty(root) | return | endif
@@ -512,10 +522,36 @@ function! easygit#smartRoot(...)
   return cwd =~# '^' . root ? cwd : root
 endfunction
 
+" Run git add with files in smartRoot
+function! easygit#add(...) abort
+  if a:0 == 0 | return | endif
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  let args = join(map(copy(a:000), 'shellescape(v:val)'), ' ')
+  let command = 'git add ' . join(a:000, ' ')
+  call s:system(command)
+  execute 'lcd ' . cwd
+endfunction
+
+" Open git status buffer from smart root
+function! easygit#status()
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  call s:execute('git status --long -b', {
+        \ 'edit': 'edit',
+        \ 'title': '__easygit_status__',
+        \})
+  execute 'lcd ' . cwd
+endfunction
+
 " Execute command and show the result by options
 " `option.edit` edit command used for open result buffer
 " `option.pipe` pipe current buffer to command
-" `option.title` requited title for the new tmp buffer
+" `option.title` required title for the new tmp buffer
 " `option.nokeep` if 1, not keepalt
 function! s:execute(cmd, option) abort
   let edit = get(a:option, 'edit', 'edit')
