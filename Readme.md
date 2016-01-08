@@ -42,8 +42,7 @@ to diff with current file.
 * *Gdiff*           Git diff with command line argument.
 * *Gremove*         Git remove with command line argument, remove current file
 when arguments empty.
-* *Grename*         Rename current by git mv, file in buffer list would reflex
-  the changes.
+* *Grename*         Rename current by git mv, file in buffer list would react the changes.
 * *Gmove*           Git mv with command line argument.
 * *Gcheckout*       Git checkout with command line argument.
 * *Gpush*           Git push with arguments, dispatch when possible.
@@ -53,6 +52,9 @@ when arguments empty.
 * *Gstatus*         Show git status in a temporary buffer.
 * *Ggrep*           Git grep repo of current file, and show result in quickfix
 * *Gmerge*          Git merge with branch complete
+
+Those commands have reasonable complete setting, use `<tab>` to complete
+commands.
 
 ## Full documentation
 
