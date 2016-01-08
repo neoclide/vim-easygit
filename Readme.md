@@ -46,9 +46,13 @@ when arguments empty.
   the changes.
 * *Gmove*           Git mv with command line argument.
 * *Gcheckout*       Git checkout with command line argument.
-* *Gpush*           Git push with command line argument, dispatch when possible,
-* *Gpull*           Git pull with command line argument, dispatch when possible,.
-* *Gfetch*          Git fetch with command line argument, dispatch when possible,.
+* *Gpush*           Git push with arguments, dispatch when possible.
+* *Gpull*           Git pull with arguments, dispatch when possible.
+* *Gfetch*          Git fetch with arguments, dispatch when possible.
+* *Gadd*            Git add with arguments.
+* *Gstatus*         Show git status in a temporary buffer.
+* *Ggrep*           Git grep repo of current file, and show result in quickfix
+* *Gmerge*          Git merge with branch complete
 
 ## Full documentation
 
