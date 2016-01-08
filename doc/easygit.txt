@@ -12,7 +12,7 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.2.2
+Version		: 0.3.0
 Last Change	: Jan 08 2016
 
 License : MIT license {{{
