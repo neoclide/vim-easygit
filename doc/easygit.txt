@@ -1,4 +1,4 @@
-*easygit.txt*	cleaned and featured git wrapper for vim
+*easygit.txt*	a git wrapper focus on simplily and usability
 
        @@@@@@@@   @@@@@@    @@@@@@   @@@ @@@   @@@@@@@@  @@@  @@@@@@@ ~
        @@@@@@@@  @@@@@@@@  @@@@@@@   @@@ @@@  @@@@@@@@@  @@@  @@@@@@@ ~
@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.2.1
-Last Change	: Jan 06 2016
+Version		: 0.2.2
+Last Change	: Jan 08 2016
 
 License : MIT license {{{
 
@@ -83,17 +83,38 @@ PREREQUIREMENT				*easygit-prerequirement*
 Make sure your vim version is 7.0+, and you have git version above 2.0.0 (It
 may works with git < 2.0.0, but not guaranteed)
 
+Some command use command line utilities, they possibly not works on windows.
+
 ==============================================================================
 PHILOSOPHY				*easygit-philosophy*
 
 Easygit tris hard to works well 80% of daily usage git commands while avoid
-overhead complexity.  As a result, it will not wrap everything that git can
-do. Features that will not be implemented:
+overhead complexity.
 
-	* Git log, git log is really useful feature, so I want to implement it
-	in a separate plugin https://github.com/chemzqm/unite-git-log, which
-	using |unite.vim|, with the power of unite, your life with git log would
-	much easier.
+	* All commands work on the git repository of current file, not current
+	CWD!!  This could be a life saving if you switch the file of different
+	repo a lot, to make the command behaviour reasonable, you can set
+	|g:easygit_auto_lcd| to 1.
+
+	* Commands would always available, just set |g:easygit_enable_command|
+	to 1
+
+	* No useless messages any more, no press any key to continue
+
+	* No wait, dispatch remote commands to shell if  |vim-dispatch| or
+	|vim-iterm-start| available
+	
+	* Expose autoload functions, could be used anywhere.
+	
+	* Well designed default options, works out of box.
+
+	* Friendly to other plugins, commands are disabled by default to avoid
+	conflict, |buftype| are set to nofile and |bufhidden| are set to
+	delete for the temporary buffers.
+
+	* Enhanced gitlog support, implemented in a separate plugin
+	https://github.com/chemzqm/unite-git-log, which make uses the power of
+	|unite.vim|
 
 ==============================================================================
 INTERFACE				*easygit-interface*
@@ -162,9 +183,9 @@ All commands are disabed by default to avoid conflict, you have to use
 		used, -f option is added for git mv.  If moving current
 		buffer, a new buffer with new bufname would take replace.
 
-:Grename[{bang}] {bufname}			*:Grename*
-		Git rename current buffer to a new {bufname}
-
+:Grename[{bang}] {name}				*:Grename*
+		Git mv file of current buffer to a new {name}, use {bang} to
+		overwrite exist file.
 
 :Gremove[{bang}] [{options}] [{files}]...	*:Gremove*
 		Run git rm with {files}, when {bang} is used, -f option is
@@ -177,23 +198,35 @@ All commands are disabed by default to avoid conflict, you have to use
 :Gstatus 					*:Gstatus*
 		Show git status in a temporary buffer
 
+:Gmerge {args}					*:Gmerge*
+		Run git merge with {args}
+
+:Ggrep {args}					*:Ggrep*
+		Run git grep with {args} and show result in |quickfix|,
+		use |g:easygit_grep_open| to control |cwindow|.
+
+:Gfetch {args}				*:Gfetch*
+		Run git fetch with {args}, dispatched when possible
+
 ==============================================================================
 VARIABLES 				*easygit-variables*
 
-Easygit tried to have good default option, but you can customize it with some
-golbal variables.
+Easygit have well designed default options, but you still can customize it
+with golbal variables.
 
 ------------------------------------------------------------------------------
 
 *g:easygit_enable_command*
-	To enable the commands of easygit, use: >
+	Commands are disabled by default to make it works with |fugitive|
+	without any effort.  To enable the commands of easygit, use: >
 
-		let easygit_disable_command = 1
+		let easygit_enable_command = 1
+	
 
 *g:easygit_auto_lcd*
-	When set 1, vim will try lcd to your git project root of the buffer on
-	buffer enter, it ignores nofile buffer and do nothing if CWD already
-	in git directory of current buffer.
+	When set 1, easygit would try to lcd to your git root of current file
+	, it ignores nofile buffer and do nothing if CWD inside git root of
+	current file
 
 		let easygit_auto_lcd = 1
 
@@ -212,7 +245,7 @@ golbal variables.
 	to disable the fold on buffer read
 
 *g:easygit_diff_edit_command*
-	The edit command for |:Gdiff|, eg: >
+	The edit command for |:Gdiff| (default is |:edit|), eg: >
 
 		let g:easygit_diff_edit_command = 'pedit'
 <	
@@ -220,6 +253,11 @@ golbal variables.
 
 *g:easygit_diff_this_edit*
 	The edit command for |:GdiffThis|, default value is {vsplit}
+
+*g:easygit_grep_open*
+	To disable |:Ggrep| using |cwindow| to show the results after grep,
+	use: >
+		let g:easygit_grep_open = 0
 
 
 ==============================================================================
@@ -232,9 +270,9 @@ with the generated buffers.
 
 q					*n_easygit_q*
 
-		Smart quite the temporary buffer, if it's open by edit/pedit
-		command, the window would be restored to the previous buffer,
-		otherwise, the window will closed.
+		Smart quite the temporary buffer, if it's open by |:edit| or
+		|:pedit| command, the window would be restored to the previous
+		buffer, otherwise, the window will be closed.
 
 u					*n_easygit_u*
 
@@ -254,7 +292,7 @@ d					*n_easygit_d*
 p					*n_easygit_p*
 
 		Run |:Gedit| with ref in current line, works only in buffer
-		from |:Gblame|
+		of |:Gblame|
 
 
 ==============================================================================
@@ -265,13 +303,13 @@ Easygit exports some useful functions.
 ------------------------------------------------------------------------------
 
 easygit#gitdir([{path}])				*easygit#gitdir*
-		Extract git directory by path.
+		Extract git directory by given {path}.
 
-easygit#cd([{local}])					*easygit#cd*
+easygit#cd([{islocal}])					*easygit#cd*
 		Make vim cd/lcd to git root directory of current file.
 
-easygit#checkout([{command}])				*easygit#checkout*
-		Run git checkout run {command} as options
+easygit#checkout({args}...)				*easygit#checkout*
+		Run git checkout with {args} as options
 
 easygit#show([{command}], [{option}])			*easygit#show*
 		Run git show with {command} as options, specify edit mode by
@@ -287,10 +325,11 @@ easygit#commitCurrent({msg}])				*easygit#commitCurrent*
 		Commit current buffer changes with {msg}
 
 easygit#blame([{edit}]])				*easygit#blame*
-		Open git blame buffer of current buffer with {edit} method
+		Open git blame buffer of current buffer with optinal {edit} method,
+		|:edit| by default
 
-easygit#commit([{command}]])				*easygit#commit*
-		Start git commit with command operation in a split buffer
+easygit#commit([{args}...]])				*easygit#commit*
+		Start git commit with {args} in a split buffer
 
 easygit#move({force}, {source}, {destination})		*easygit#move*
 		Start git mv the {source} to {destination}, append option -f
@@ -308,10 +347,18 @@ easygit#complete({file}, {branch}, {tag}, {cwd})	*easygit#complete*
 		break. If {cwd} is true, extract git directory from CWD.
 
 easygit#add({files}...) 				*easygit#add*
-		Git add {files}
+		Git add {files} in git repo of current file.
 
 easygit#status() 					*easygit#status*
-		Show git status in a temporary buffer
+		Show git status in a temporary buffer.
+
+easygit#merge({args})					*easygit#merge*
+		Run git merge command with {args}
+
+easygit#grep({args})					*easygit#grep*
+		Lcd to the git repo root (if not inside) and start git grep,
+		show the by using |:cwindow|, open behaviour could be
+		controlled by |g:easygit_grep_open| variable.
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
@@ -331,11 +378,10 @@ CHANGELOG				*easygit-changelog*
 0.3.0	2016-1-8
 	- Break change: disable commands by default
 	- add |:Gstatus| |:Gadd|
+	- add |:Ggrep| |:Gmerge|
 
 ==============================================================================
 TODO				 	*easygit-todo*
-
-* TDOO Ggrep, Gmerge
 
 ==============================================================================
 
