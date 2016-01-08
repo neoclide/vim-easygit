@@ -548,6 +548,34 @@ function! easygit#status()
   execute 'lcd ' . cwd
 endfunction
 
+function! easygit#merge(args)
+  if a:0 == 0 | return | endif
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  let command = 'git merge ' . a:args
+  call s:system(command)
+  execute 'lcd ' . cwd
+endfunction
+
+function! easygit#grep(args)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  let old_grepprg = &grepprg
+  let old_grepformat = &grepformat
+  set grepprg=git\ --no-pager\ grep\ --no-color\ -n\ $*
+  set grepformat=%f:%l:%m
+  execute 'silent grep ' . a:args
+  if get(g:, 'easygit_grep_open', 1)
+    cwindow
+  endif
+  let &grepprg = old_grepprg
+  let &grepformat = old_grepformat
+endfunction
+
 " Execute command and show the result by options
 " `option.edit` edit command used for open result buffer
 " `option.pipe` pipe current buffer to command

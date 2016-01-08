@@ -100,7 +100,7 @@ function! s:CompleteCheckout(A, L, P)
   return easygit#completeCheckout()
 endfunction
 
-function! s:CompleteDiff()
+function! s:CompleteBranch(A, L, P)
   return easygit#complete(0, 1, 0)
 endfunction
 
@@ -141,7 +141,7 @@ if get(g:, 'easygit_enable_command', 0)
   command! -nargs=+ -complete=custom,s:GitFiles          Gcommit    :call easygit#commit(<q-args>)
   command! -nargs=* -complete=custom,s:GitFiles          Ggrep      :call s:Remove('<bang>', <f-args>)
   command! -nargs=* -complete=custom,s:CompleteShow      Gedit      :call s:Edit(<q-args>)
-  command! -nargs=* -complete=custom,s:CompleteDiff      Gdiff      :call s:DiffShow(<q-args>)
+  command! -nargs=* -complete=custom,s:CompleteBranch    Gdiff      :call s:DiffShow(<q-args>)
   command! -nargs=* -bang -complete=custom,s:GitFiles    Gremove    :call s:Remove('<bang>', <f-args>)
   command! -nargs=1 -bang -complete=custom,s:GitFiles    Grename    :call s:Rename('<bang>', <f-args>)
   command! -nargs=+ -bang -complete=custom,s:GitFiles    Gmove      :call s:Move('<bang>', <f-args>)
@@ -150,7 +150,8 @@ if get(g:, 'easygit_enable_command', 0)
   command! -nargs=* -complete=custom,easygit#listRemotes Gfetch     :call easygit#dispatch('fetch', <q-args>)
   command! -nargs=* -complete=custom,easygit#listRemotes Gpull      :call easygit#dispatch('pull', <q-args>)
   command! -nargs=+ -complete=custom,easygit#completeAdd Gadd       :call easygit#add(<f-args>)
-  command! -nargs=1 -complete=custom,s:CompleteMerge     Gmerge     :call easygit#merge(<q-args>)
+  command! -nargs=+ -complete=custom,s:CompleteBranch    Gmerge     :call easygit#merge(<q-args>)
+  command! -nargs=+ -complete=custom,s:GitFiles          Ggrep      :call easygit#grep(<q-args>)
 endif
 
 " enable auto lcd
