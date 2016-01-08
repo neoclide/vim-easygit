@@ -109,6 +109,9 @@ them off (see |easygit-variable|) if you still want have fugitive installed.
 ------------------------------------------------------------------------------
 COMMANDS 				*easygit-commands*
 
+All commands are disabed by default to avoid conflict, you have to use
+|g:easygit_enable_command| to enable them.
+
 :Gcd   						*:Gcd*
 		Make vim :cd to git root directory of current file
 
@@ -178,21 +181,22 @@ COMMANDS 				*easygit-commands*
 ==============================================================================
 VARIABLES 				*easygit-variables*
 
-Some variables could be used for configure how easygit works, none of them are
-necessary, easygit comes with pretty good default options
+Easygit tried to have good default option, but you can customize it with some
+golbal variables.
 
 ------------------------------------------------------------------------------
 
-*g:easygit_auto_lcd*
-	When set 1, vim will try lcd to your git project root of the buffer on
-	buffer enter
-
-		let easygit_auto_lcd = 1
-
-*g:easygit_disable_command*
-	To disable all the commands of easygit, use: >
+*g:easygit_enable_command*
+	To enable the commands of easygit, use: >
 
 		let easygit_disable_command = 1
+
+*g:easygit_auto_lcd*
+	When set 1, vim will try lcd to your git project root of the buffer on
+	buffer enter, it ignores nofile buffer and do nothing if CWD already
+	in git directory of current buffer.
+
+		let easygit_auto_lcd = 1
 
 *g:easygit_edit_edit_command*
 	configure the edit command for |:Gedit|, eg: >
@@ -229,7 +233,7 @@ with the generated buffers.
 
 q					*n_easygit_q*
 
-		Quite the temporary buffer, if it's open by edit/pedit
+		Smart quite the temporary buffer, if it's open by edit/pedit
 		command, the window would be restored to the previous buffer,
 		otherwise, the window will closed.
 
@@ -240,8 +244,11 @@ u					*n_easygit_u*
 		down easily
 
 d					*n_easygit_d*
+		
+		Could means {down} or {diff} depends on the current buffer.
 
 		When in buffer from |:Gedit|, open first child commit.
+
 		When in buffer from |:Gblame|, run |:GdiffThis| with the
 		commit of current line
 
@@ -315,6 +322,9 @@ CHANGELOG				*easygit-changelog*
 0.2.1	2016-1-6
 	- Use smartRoot for command root
 	- added Gpull Gpush Gfetch
+
+0.3.0	2016-1-8
+	- Break change: disable commands by default
 
 ==============================================================================
 TODO				 	*easygit-todo*

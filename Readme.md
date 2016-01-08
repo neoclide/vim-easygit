@@ -1,7 +1,10 @@
 # Easygit
 
-A git wrapper plugin made to replace [fugitive](https://github.com/tpope/vim-fugitive).
-The goal is cleaner code, and be more friendly to user.
+A git wrapper plugin made to replace [fugitive](https://github.com/tpope/vim-fugitive),
+it can be used together with fugitive as commands are disabled by default.
+
+The goal make cleaner code, and be more friendly to user (especially using with
+macvim)
 
 ## Features
 
@@ -18,10 +21,15 @@ The goal is cleaner code, and be more friendly to user.
 * **Expose flexible API**, in `autoload/easygit.vim`
 
 * **Works good with other plugins** since filetype is nofile, your mru plugin and
-  status line plugin should easily ignore them, you can disable all commands
-  with `let g:easygit_disable_command = 1` to make it works in fugitive.
+  status line plugin should easily ignore them.
 
 ## Commands
+
+Commands are disabled by default, if you want to use them, you have to add
+
+    let g:easygit_enable_command = 1
+
+To your `.vimrc`
 
 * *Gcd*             make vim cd to git root directory.
 * *Glcd*            make vim lcd to git root directory.
