@@ -391,7 +391,7 @@ function! easygit#commit(args, ...) abort
     endif
     let b:easygit_commit_root = root
     let b:easygit_commit_arguments = args
-    setlocal bufhidden=wipe filetype=gitcommit
+    setlocal bufhidden=wipe filetype=gitcommit nofen
     return '1'
   endif
 endfunction
