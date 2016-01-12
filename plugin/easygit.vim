@@ -162,4 +162,4 @@ if get(g:, 'easygit_auto_lcd', 0)
   augroup end
 endif
 
-"vim:set et sw=2 ts=2 tw=80:
+"vim:set et sw=2 ts=2 tw=80 foldmethod=syntax fen:
