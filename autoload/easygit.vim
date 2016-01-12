@@ -370,8 +370,6 @@ function! easygit#commit(args, ...) abort
     if a:0
       if !empty(errors)
         echohl Error | echo join(errors, '\n') | echohl None
-      else
-        exe 'silent edit'
       endif
       return
     endif
