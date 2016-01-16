@@ -243,6 +243,7 @@ function! easygit#commitCurrent(args) abort
     echohl Error | echon output | echohl None
   else
     echo 'done'
+    execute 'silent w'
   endif
   execute 'silent lcd ' . old_cwd
 endfunction
