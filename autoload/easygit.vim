@@ -373,7 +373,7 @@ function! easygit#commit(args, ...) abort
       return
     endif
     let error = get(errors, -2, get(errors, -1, '!'))
-    if error ==# '!' | echo 'nothing commit' | return | endif
+    if error ==# '!' | call s:message('nothing to commit, working directory clean') | return | endif
     " should contain false
     if error !~# 'false''\=\.$' | return | endif
     call delete(out)
@@ -648,6 +648,10 @@ endfunction
 
 function! s:gsub(str,pat,rep) abort
   return substitute(a:str,'\v\C'.a:pat,a:rep,'g')
+endfunction
+
+function! s:message(msg)
+  echohl MoreMsg | echon a:msg | echohl None
 endfunction
 
 function! easygit#dispatch(name, args)
