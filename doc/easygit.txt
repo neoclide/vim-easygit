@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.3.0
-Last Change	: Jan 08 2016
+Version		: 0.4.0
+Last Change	: Jan 25 2016
 
 License : MIT license {{{
 
@@ -205,8 +205,14 @@ All commands are disabed by default to avoid conflict, you have to use
 		Run git grep with {args} and show result in |quickfix|,
 		use |g:easygit_grep_open| to control |cwindow|.
 
-:Gfetch {args}				*:Gfetch*
+:Gfetch {args}					*:Gfetch*
 		Run git fetch with {args}, dispatched when possible
+
+:Greset {args}					*:Greset*
+		Run git reset with {args}
+
+:Grevert {args}					*:Grevert*
+		Run git revert with {args}
 
 ==============================================================================
 VARIABLES 				*easygit-variables*
@@ -355,6 +361,12 @@ easygit#status() 					*easygit#status*
 easygit#merge({args})					*easygit#merge*
 		Run git merge command with {args}
 
+easygit#reset({args})					*easygit#reset*
+		Run git reset command with {args}
+
+easygit#revert({args})					*easygit#revert*
+		Run git revert command with {args}
+
 easygit#grep({args})					*easygit#grep*
 		Lcd to the git repo root (if not inside) and start git grep,
 		show the by using |:cwindow|, open behaviour could be
@@ -363,22 +375,28 @@ easygit#grep({args})					*easygit#grep*
 ==============================================================================
 CHANGELOG				*easygit-changelog*
 
-0.1.0	2016-1-4
-	- init.
+0.4.0   2016-01-25
+	- Improve complete for Gcommit
+	-add |:Greset| |:Grevert|
+
+0.3.0	2016-1-8
+	- Break change: disable commands by default
+	- add |:Gstatus| |:Gadd|
+	- add |:Ggrep| |:Gmerge|
+
+0.2.1	2016-1-6
+	- Use smartRoot for command root
+	- added Gpull Gpush Gfetch
 
 0.2.0	2016-1-5
 	- added Gmv Grm and Grename
 	- added easygit_auto_lcd option
 	- added complete functions for all commands
 
-0.2.1	2016-1-6
-	- Use smartRoot for command root
-	- added Gpull Gpush Gfetch
 
-0.3.0	2016-1-8
-	- Break change: disable commands by default
-	- add |:Gstatus| |:Gadd|
-	- add |:Ggrep| |:Gmerge|
+0.1.0	2016-1-4
+	- init.
+
 
 ==============================================================================
 TODO				 	*easygit-todo*
