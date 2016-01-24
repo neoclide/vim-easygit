@@ -499,6 +499,18 @@ function! easygit#completeAdd(...)
   return output
 endfunction
 
+function! easygit#completeCommit(argLead, cmdLine, curosrPos)
+  let opts = ['--message', '--fixup', '--amend', '--cleanup', '--status', '--only', '-signoff']
+  if a:argLead =~# '\v^-'
+    return filter(opts, 'stridx(v:val,"' .a:argLead. '") == 0')
+  endif
+  let output = easygit#completeAdd()
+  if !empty(output)
+    let files = split(output, '\n')
+    return filter(files, 'stridx(v:val,"' .a:argLead. '") == 0')
+  endif
+endfunction
+
 function! easygit#listRemotes(...)
   let root = easygit#smartRoot()
   if empty(root) | return | endif

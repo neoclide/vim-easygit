@@ -138,7 +138,6 @@ if get(g:, 'easygit_enable_command', 0)
   command! -nargs=0 Gstatus                        :call easygit#status()
   command! -nargs=* GcommitCurrent                 :call s:CommitCurrent(<q-args>)
   command! -nargs=? -complete=custom,s:CompleteDiffThis  GdiffThis  :call s:DiffThis(<q-args>)
-  command! -nargs=+ -complete=custom,s:GitFiles          Gcommit    :call easygit#commit(<q-args>)
   command! -nargs=* -complete=custom,s:GitFiles          Ggrep      :call s:Remove('<bang>', <f-args>)
   command! -nargs=* -complete=custom,s:CompleteShow      Gedit      :call s:Edit(<q-args>)
   command! -nargs=* -complete=custom,s:CompleteBranch    Gdiff      :call s:DiffShow(<q-args>)
@@ -152,6 +151,7 @@ if get(g:, 'easygit_enable_command', 0)
   command! -nargs=+ -complete=custom,easygit#completeAdd Gadd       :call easygit#add(<f-args>)
   command! -nargs=+ -complete=custom,s:CompleteBranch    Gmerge     :call easygit#merge(<q-args>)
   command! -nargs=+ -complete=custom,s:GitFiles          Ggrep      :call easygit#grep(<q-args>)
+  command! -nargs=+ -complete=customlist,easygit#completeCommit          Gcommit    :call easygit#commit(<q-args>)
 endif
 
 " enable auto lcd
