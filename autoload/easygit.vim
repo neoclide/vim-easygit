@@ -491,10 +491,9 @@ endfunction
 
 function! easygit#completeAdd(...)
   let root = easygit#smartRoot()
-  let output = ''
   let cwd = getcwd()
   exe 'lcd ' . root
-  let output .= s:system('git ls-files -m -d -o --exclude-standard')
+  let output = s:system('git ls-files -m -d -o --exclude-standard')
   exe 'lcd ' . cwd
   return output
 endfunction
@@ -504,7 +503,11 @@ function! easygit#completeCommit(argLead, cmdLine, curosrPos)
   if a:argLead =~# '\v^-'
     return filter(opts, 'stridx(v:val,"' .a:argLead. '") == 0')
   endif
-  let output = easygit#completeAdd()
+  let root = easygit#smartRoot()
+  let cwd = getcwd()
+  exe 'lcd ' . root
+  let output = s:system('git ls-files -m -d --exclude-standard')
+  exe 'lcd ' . cwd
   if !empty(output)
     let files = split(output, '\n')
     return filter(files, 'stridx(v:val,"' .a:argLead. '") == 0')
