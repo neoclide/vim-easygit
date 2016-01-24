@@ -506,12 +506,38 @@ function! easygit#completeCommit(argLead, cmdLine, curosrPos)
   let root = easygit#smartRoot()
   let cwd = getcwd()
   exe 'lcd ' . root
-  let output = s:system('git ls-files -m -d --exclude-standard')
+  let output = s:system('git status -s|cut -c 4-')
   exe 'lcd ' . cwd
   if !empty(output)
     let files = split(output, '\n')
     return filter(files, 'stridx(v:val,"' .a:argLead. '") == 0')
   endif
+  return []
+endfunction
+
+function! easygit#completeReset(argLead, ...)
+  let opts = ['--soft', '--hard', '--merge', '--keep', '--mixed']
+  if a:argLead =~# '\v^-'
+    return filter(opts, 'stridx(v:val,"' .a:argLead. '") == 0')
+  endif
+  let root = easygit#smartRoot()
+  let cwd = getcwd()
+  exe 'lcd ' . root
+  let output = s:system('git diff --staged --name-status | cut -f 2')
+  exe 'lcd ' . cwd
+  if !empty(output)
+    let files = split(output, '\n')
+    return filter(files, 'stridx(v:val,"' .a:argLead. '") == 0')
+  endif
+  return []
+endfunction
+
+function! easygit#completeRevert(argLead, ...)
+  let opts = ['--continue', '--quit', '--abort']
+  if a:argLead =~# '\v^-'
+    return filter(opts, 'stridx(v:val,"' .a:argLead. '") == 0')
+  endif
+  return []
 endfunction
 
 function! easygit#listRemotes(...)
@@ -532,6 +558,24 @@ function! easygit#smartRoot(...)
   let root = fnamemodify(gitdir, ':h')
   let cwd = getcwd()
   return cwd =~# '^' . root ? cwd : root
+endfunction
+
+function! easygit#revert(args)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  call s:system('git revert ' . a:args)
+  execute 'lcd ' . cwd
+endfunction
+
+function! easygit#reset(args)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let cwd = getcwd()
+  execute 'lcd ' . root
+  call s:system('git reset ' . a:args)
+  execute 'lcd ' . cwd
 endfunction
 
 " Run git add with files in smartRoot

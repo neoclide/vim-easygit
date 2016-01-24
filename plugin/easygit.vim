@@ -151,7 +151,9 @@ if get(g:, 'easygit_enable_command', 0)
   command! -nargs=+ -complete=custom,easygit#completeAdd Gadd       :call easygit#add(<f-args>)
   command! -nargs=+ -complete=custom,s:CompleteBranch    Gmerge     :call easygit#merge(<q-args>)
   command! -nargs=+ -complete=custom,s:GitFiles          Ggrep      :call easygit#grep(<q-args>)
-  command! -nargs=+ -complete=customlist,easygit#completeCommit          Gcommit    :call easygit#commit(<q-args>)
+  command! -nargs=+ -complete=customlist,easygit#completeRevert    Grevert    :call easygit#revert(<q-args>)
+  command! -nargs=+ -complete=customlist,easygit#completeReset     Greset     :call easygit#reset(<q-args>)
+  command! -nargs=+ -complete=customlist,easygit#completeCommit    Gcommit    :call easygit#commit(<q-args>)
 endif
 
 " enable auto lcd
