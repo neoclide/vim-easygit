@@ -84,7 +84,8 @@ function! s:GitFiles(A, L, P)
 endfunction
 
 function! s:TryGitlcd()
-  if &buftype =~# '\v(nofile|help)' | return | endif
+  if &buftype =~# '\v(nofile|help|terminal)' | return | endif
+  if stridx(expand('%'), 'term://') == 0 | return | endif
   if &previewwindow | return | endif
   let gitdir = easygit#gitdir(expand('%'), 1)
   if empty(gitdir) | return '' | endif
