@@ -719,8 +719,12 @@ function! easygit#dispatch(name, args)
   let cwd = getcwd()
   let cmd = 'git ' . a:name . ' ' . a:args
   if !has('gui_running')
+    let pre = exists(':Nrun') ? 'Nrun ' : '!'
+    if has('nvim') && pre ==# '!'
+      let pre = ':terminal'
+    endif
     exe 'lcd ' . root
-    exe '!' . cmd
+    exe pre . cmd
     exe 'lcd ' . cwd
   else
     let title = 'easygit-' . a:name
