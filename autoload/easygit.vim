@@ -357,8 +357,9 @@ function! easygit#commit(args, ...) abort
   let old_cwd = getcwd()
   execute 'lcd ' . root
   let cmd = 'git commit ' . a:args
-  if !has('gui_running') && !has('nvim')
-    noautocmd execute '!' . cmd
+  if !has('gui_running')
+    let pre = has('nvim') ? 'terminal ' : '!'
+    noautocmd execute pre . cmd
     execute 'lcd ' . old_cwd
   else
     let out = tempname()
