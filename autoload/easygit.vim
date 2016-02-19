@@ -95,7 +95,7 @@ function! easygit#show(args, option) abort
         \. '__'
   let res = s:execute(command, opt)
   if res == -1 | return | endif
-  if fold | setl fen | endif
+  if fold | setl foldenable | endif
   setlocal filetype=git foldtext=easygit#foldtext() foldmethod=syntax
   let b:gitdir = gitdir
   call setpos('.', [bufnr('%'), 7, 0, 0])
@@ -201,7 +201,7 @@ function! easygit#diffThis(ref, ...) abort
   execute 'setf ' . ft
   diffthis
   let b:gitdir = gitdir
-  setl fen
+  setl foldenable
   call setwinvar(winnr(), 'easygit_diff_origin', bnr)
   call setpos('.', [bufnr('%'), 0, 0, 0])
 endfunction
@@ -368,7 +368,11 @@ function! easygit#commit(args, ...) abort
     " bufleave
     if a:0
       if !empty(errors)
+        redraw
         echohl Error | echo join(errors, '\n') | echohl None
+      endif
+      if exists('*EasygitCommitCallback')
+        call EasygitCommitCallback()
       endif
       return
     endif
