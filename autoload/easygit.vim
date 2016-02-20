@@ -362,7 +362,7 @@ function! easygit#commit(args, ...) abort
     execute 'lcd ' . old_cwd
   else
     let out = tempname()
-    noautocmd silent execute '!env GIT_EDITOR=false ' . cmd . ' 2> ' . out
+    noautocmd silent execute '!env GIT_EDITOR=false ' . cmd . ' 1>/dev/null 2> ' . out
     execute 'lcd ' . old_cwd
     let errors = readfile(out)
     " bufleave
