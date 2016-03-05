@@ -84,14 +84,20 @@ function! s:GitFiles(A, L, P)
 endfunction
 
 function! s:TryGitlcd()
-  if &buftype =~# '\v(nofile|help|terminal)' | return | endif
+  if !empty(&buftype) | return | endif
   if stridx(expand('%'), 'term://') == 0 | return | endif
   if &previewwindow | return | endif
   let gitdir = easygit#gitdir(expand('%'), 1)
-  if empty(gitdir) | return '' | endif
+  if empty(gitdir)
+    if exists('w:original_cwd') && stridx(expand('%:p'), w:original_cwd) == 0
+      exe 'lcd ' . w:original_cwd
+    endif
+    return
+  endif
   let root = fnamemodify(gitdir, ':h')
   let cwd = getcwd()
-  if cwd !~# '^' . root
+  if stridx(cwd, root) != 0
+    let w:original_cwd = cwd
     exe 'lcd ' .root
   endif
 endfunction
