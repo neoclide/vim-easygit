@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.4.0
-Last Change	: Jan 25 2016
+Version		: 0.4.1
+Last Change	: May 02, 2016
 
 License : MIT license {{{
 
@@ -375,7 +375,10 @@ easygit#grep({args})					*easygit#grep*
 ==============================================================================
 CHANGELOG				*easygit-changelog*
 
-0.4.0   2016-01-25
+0.4.1   2016-5-2
+	- fix previous comment navigate not working
+
+0.4.0   2016-1-25
 	- Improve complete for Gcommit
 	-add |:Greset| |:Grevert|
 
@@ -403,4 +406,4 @@ TODO				 	*easygit-todo*
 
 ==============================================================================
 
-vim:tw=78:ts=8:sts=0:ft=help:noet:fen:fdm=marker:
+vim:tw=78:nosta:ts=8:sts=0:ft=help:noet:fen:fdm=marker:

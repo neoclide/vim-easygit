@@ -680,7 +680,7 @@ endfunction
 
 function! s:NextCommit(commit, gitdir) abort
   let output = system('git --git-dir=' . a:gitdir
-        \. 'log --reverse --ancestry-path '
+        \. ' log --reverse --ancestry-path '
         \. a:commit . '..master | head -n 1 | cut -d \  -f 2')
   if v:shell_error && output !=# ""
     echohl Error | echon output | echohl None
