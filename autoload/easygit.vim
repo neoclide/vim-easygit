@@ -2,8 +2,8 @@
 " Description: Functions used by easygit
 " Author: Qiming Zhao <chemzqm@gmail.com>
 " Licence: MIT licence
-" Version: 0.1
-" Last Modified:  January 4, 2016
+" Version: 0.2
+" Last Modified: Dec 08, 2016
 " ============================================================================
 
 " Extract git directory by path
@@ -371,8 +371,9 @@ function! easygit#commit(args, ...) abort
         redraw
         echohl Error | echo join(errors, '\n') | echohl None
       endif
-      if exists('*EasygitCommitCallback')
-        call EasygitCommitCallback()
+      " Wait for git to complete
+      if exists('*timer_start')
+        call timer_start(100, function('s:CommitCallback'))
       endif
       return
     endif
@@ -396,6 +397,14 @@ function! easygit#commit(args, ...) abort
     let b:easygit_commit_arguments = args
     setlocal bufhidden=wipe filetype=gitcommit nofen
     return '1'
+  endif
+endfunction
+
+function! s:CommitCallback()
+  if exists('*SetStatusLine')
+    call SetStatusLine()
+  else
+    redraws!
   endif
 endfunction
 
