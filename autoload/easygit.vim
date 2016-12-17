@@ -2,8 +2,8 @@
 " Description: Functions used by easygit
 " Author: Qiming Zhao <chemzqm@gmail.com>
 " Licence: MIT licence
-" Version: 0.2
-" Last Modified: Dec 08, 2016
+" Version: 0.2.1
+" Last Modified: Dec 18, 2016
 " ============================================================================
 
 " Extract git directory by path
@@ -400,12 +400,11 @@ function! easygit#commit(args, ...) abort
   endif
 endfunction
 
-function! s:CommitCallback()
-  if exists('*SetStatusLine')
-    call SetStatusLine()
-  else
-    redraws!
+function! s:CommitCallback(id)
+  if exists('b:git_branch')
+    unlet b:git_branch
   endif
+  redraws!
 endfunction
 
 function! easygit#move(force, source, destination) abort
