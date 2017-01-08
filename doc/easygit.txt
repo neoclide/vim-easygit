@@ -317,8 +317,8 @@ easygit#cd([{islocal}])					*easygit#cd*
 easygit#checkout({args}...)				*easygit#checkout*
 		Run git checkout with {args} as options
 
-easygit#show([{command}], [{option}])			*easygit#show*
-		Run git show with {command} as options, specify edit mode by
+easygit#show([{commit}], [{option}])			*easygit#show*
+		Run git show with {commit} as options, specify edit mode by
 		config option.edit
 
 easygit#diffThis({commit}, [{edit}])			*easygit#diffThis*

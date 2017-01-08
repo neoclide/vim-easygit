@@ -67,7 +67,7 @@ endfunction
 " Using gitdir of current file
 " fold the file if `option.fold` is true
 " `option.file` could contain the file for show
-" `option.fold` if 0, nofold
+" `option.fold` if 0, not fold
 " `option.all` show all files change
 " `option.gitdir` could contain gitdir to work on
 function! easygit#show(args, option) abort
