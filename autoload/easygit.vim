@@ -105,6 +105,7 @@ endfunction
 
 function! s:ShowParentCommit() abort
   let commit = matchstr(getline(2), '\v\s\zs.+$')
+  if empty(commit) | return | endif
   call easygit#show(commit, {
         \ 'eidt': 'edit',
         \ 'gitdir': b:gitdir,
