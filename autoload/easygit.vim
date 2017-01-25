@@ -19,15 +19,9 @@ function! easygit#gitdir(path, ...) abort
 endfunction
 
 function! s:FindGitdir(path)
-  let path = a:path
-  while path =~# '\v/.+/'
-    let dir = simplify(path . '/.git')
-    if isdirectory(dir)
-      return dir
-    endif
-    let path = substitute(path, '\v[^/]+/?$', '', '')
-  endw
-  return ''
+  let dir = finddir('.git', a:path.';')
+  if empty(dir) | return '' | endif
+  return fnamemodify(dir, ':p:h')
 endfunction
 
 " cd or lcd to base directory of current file's git root
