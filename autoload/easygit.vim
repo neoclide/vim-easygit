@@ -19,7 +19,7 @@ function! easygit#gitdir(path, ...) abort
 endfunction
 
 function! s:FindGitdir(path)
-  let dir = finddir('.git', expand(a:path . ';'))
+  let dir = finddir('.git', expand(a:path).';')
   if empty(dir) | return '' | endif
   return fnamemodify(dir, ':p:h')
 endfunction
