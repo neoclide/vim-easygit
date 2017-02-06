@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.4.3
-Last Change	: Jan 08, 2017
+Version		: 0.5.0
+Last Change	: Feb 06, 2017
 
 License : MIT license {{{
 
@@ -64,8 +64,9 @@ vim-fugitive, thanks for open source :)
 
 This is a fundamental implementation, some features may not works in systems
 like windows, and sometimes it may not works as expected, but I've tried hard
-to make it not break anything, and works friendly to user as much as possible.
-Let me know if you got any problem https://github.com/chemzqm/easygit/issues
+to make it not break anything, and works friendly for everyone as much as
+possible.  Let me know if you got any problem
+https://github.com/chemzqm/easygit/issues
 
 ==============================================================================
 INSTALLATION				*easygit-installation*
@@ -81,7 +82,7 @@ Install with your favorite plugin managers like NeoBundle/Plugin/Plug
 PREREQUIREMENT				*easygit-prerequirement*
 
 Make sure your vim version is 7.0+, and you have git version above 2.0.0 (It
-may works with git < 2.0.0, but not guaranteed)
+may works with git < 2.0.0, but who knows)
 
 Some command use command line utilities, they possibly not works on windows.
 
@@ -101,7 +102,7 @@ overhead complexity.
 
 	* No useless messages any more, no press any key to continue
 
-	* No wait, dispatch remote commands to shell if  |vim-dispatch| or
+	* No wait, dispatch remote commands to shell if |vim-dispatch| or
 	|vim-iterm-start| available
 	
 	* Expose autoload functions, could be used anywhere.
@@ -113,8 +114,7 @@ overhead complexity.
 	delete for the temporary buffers.
 
 	* Enhanced gitlog support, implemented in a separate plugin
-	https://github.com/chemzqm/unite-git-log, which make uses the power of
-	|unite.vim|
+	https://github.com/chemzqm/unite-git-log, which make use of |unite.vim|
 
 ==============================================================================
 INTERFACE				*easygit-interface*
@@ -227,7 +227,6 @@ with golbal variables.
 	without any effort.  To enable the commands of easygit, use: >
 
 		let easygit_enable_command = 1
-	
 
 *g:easygit_auto_lcd*
 	When set 1, easygit would try to lcd to your git root of current file
@@ -235,6 +234,9 @@ with golbal variables.
 	current file
 
 		let easygit_auto_lcd = 1
+
+*g:easygit_auto_tcd*
+	Like g:easygit_auto_lcd, but use `tcd` command instead.
 
 *g:easygit_edit_edit_command*
 	configure the edit command for |:Gedit|, eg: >
@@ -374,6 +376,10 @@ easygit#grep({args})					*easygit#grep*
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
+
+0.5.0   2017-02-06
+
+	- support auto tcd by `g:easygit_auto_tcd`
 
 0.4.3   2017-1-8
 

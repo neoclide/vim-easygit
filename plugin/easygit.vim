@@ -83,14 +83,14 @@ function! s:GitFiles(A, L, P)
   return easygit#complete(1, 0, 0)
 endfunction
 
-function! s:TryGitlcd()
+function! s:TryGitCd(type)
   if !empty(&buftype) | return | endif
-  if stridx(expand('%'), 'term://') == 0 | return | endif
+  if expand('%') =~# '^\w\+://' | return | endif
   if &previewwindow | return | endif
   let gitdir = easygit#gitdir(expand('%'), 1)
   if empty(gitdir)
     if exists('w:original_cwd') && stridx(expand('%:p'), w:original_cwd) == 0
-      exe 'lcd ' . w:original_cwd
+      exe a:type . ' ' . w:original_cwd
     endif
     return
   endif
@@ -98,7 +98,7 @@ function! s:TryGitlcd()
   let cwd = getcwd()
   if stridx(cwd, root) != 0
     let w:original_cwd = cwd
-    exe 'lcd ' .root
+    exe a:type . ' ' . root
   endif
 endfunction
 
@@ -164,11 +164,13 @@ if get(g:, 'easygit_enable_command', 0)
 endif
 
 " enable auto lcd
-if get(g:, 'easygit_auto_lcd', 0)
-  augroup easygit_auto_lcd
-    autocmd!
-    autocmd BufWinEnter,BufReadPost * call s:TryGitlcd()
-  augroup end
-endif
+augroup easygit_auto_lcd
+  autocmd!
+  if get(g:, 'easygit_auto_lcd', 0)
+    autocmd BufWinEnter,BufReadPost * call s:TryGitCd('lcd')
+  elseif get(g:, 'easygit_auto_tcd', 0)
+    autocmd BufWinEnter,BufReadPost * call s:TryGitCd('tcd')
+  endif
+augroup end
 
 "vim:set et sw=2 ts=2 tw=80 foldmethod=syntax fen:
