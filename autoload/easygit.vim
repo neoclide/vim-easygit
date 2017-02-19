@@ -5,6 +5,7 @@
 " Version: 0.2.1
 " Last Modified: Dec 18, 2016
 " ============================================================================
+let s:is_win = has("win32") || has('win64')
 
 " Extract git directory by path
 " if suspend is given as a:1, no error message
@@ -664,7 +665,8 @@ function! s:execute(cmd, option) abort
   execute edit . ' ' . a:option.title
   exe 'nnoremap <buffer> <silent> q :call <SID>SmartQuit("' . edit . '")<cr>'
   let b:easygit_prebufnr = bnr
-  let list = split(output, '\v\n')
+  let eol = s:is_win ? '\v\n' : '\v\r\n'
+  let list = split(output, eol)
   if len(list)
     call setline(1, list[0])
     silent! call append(1, list[1:])
