@@ -652,11 +652,17 @@ function! s:execute(cmd, option) abort
   if edit !~# 'keepalt'
     let edit = 'keepalt ' . edit
   endif
+  if s:winshell()
+    let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
+    let cmd = 'cmd /c "'.substitute(a:cmd,'[<>]', cmd_escape_char, 'g').'"'
+  else
+    let cmd = a:cmd
+  endif
   if pipe
     let stdin = join(getline(1, '$'),"\n")
-    let output = system(a:cmd, stdin)
+    let output = system(cmd, stdin)
   else
-    let output = system(a:cmd)
+    let output = system(cmd)
   endif
   if v:shell_error && output !=# ""
     echohl Error | echon output | echohl None
@@ -747,5 +753,9 @@ function! easygit#dispatch(name, args)
       exe '!' . cmd
     endif
   endif
+endfunction
+
+function! s:winshell() abort
+  return &shell =~? 'cmd' || exists('+shellslash') && !&shellslash
 endfunction
 " vim:set et sw=2 ts=2 tw=78:
