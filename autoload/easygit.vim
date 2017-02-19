@@ -654,7 +654,7 @@ function! s:execute(cmd, option) abort
   endif
   if s:winshell()
     let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
-    let cmd = 'cmd /c "'.substitute(a:cmd,'[<>]', cmd_escape_char, 'g').'"'
+    let cmd = 'cmd /c "'.substitute(a:cmd, '\v\C[<>]', cmd_escape_char, 'g').'"'
   else
     let cmd = a:cmd
   endif
