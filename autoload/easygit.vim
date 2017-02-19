@@ -82,7 +82,7 @@ function! easygit#show(args, option) abort
       \substitute(expand('%:p'), root . '/', '', ''))
     let command = 'git --no-pager'
       \. ' --git-dir=' . gitdir
-      \. ' show --no-color ' . format . a:args . ' -- ' . shellescape(file)
+      \. ' show --no-color ' . format . a:args . ' -- ' . file
   endif
   let opt = deepcopy(a:option)
   let opt.title = '__easygit__show__' . s:findObject(a:args)
@@ -185,7 +185,7 @@ function! easygit#diffThis(ref, ...) abort
   let file = substitute(expand('%:p'), root . '/', '', '')
   let command = 'git --no-pager --git-dir='. gitdir
       \. ' show --no-color '
-      \. ref . ':' . shellescape(file)
+      \. ref . ':' . file
   let option = {
         \ "edit": edit,
         \ "title": "__easygit__file__" . ref . "_"
@@ -254,7 +254,7 @@ function! easygit#blame(...) abort
   let bnr = bufnr('%')
   execute 'lcd ' . root
   let view = winsaveview()
-  let cmd = 'git --no-pager blame -- ' . shellescape(expand('%'))
+  let cmd = 'git --no-pager blame -- ' . expand('%')
   let opt = {
         \ "edit": edit,
         \ "title": '__easygit__blame__',
