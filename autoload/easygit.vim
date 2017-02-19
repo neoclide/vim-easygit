@@ -71,7 +71,7 @@ function! easygit#show(args, option) abort
   if empty(gitdir) | let gitdir = easygit#gitdir(expand('%')) | endif
   if empty(gitdir) | return | endif
   let showall = get(a:option, 'all', 0)
-  let format = '--pretty=format:''commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b'' '
+  let format = "--pretty=format:'".s:escape("commit %H%nparent %P%nauthor %an <%ae> %ad%ncommitter %cn <%ce> %cd%n %e%n%n%s%n%n%b")."' "
   if showall
     let command = 'git --no-pager'
       \. ' --git-dir=' . gitdir
@@ -652,17 +652,11 @@ function! s:execute(cmd, option) abort
   if edit !~# 'keepalt'
     let edit = 'keepalt ' . edit
   endif
-  if s:winshell()
-    let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
-    let cmd = 'cmd /c "'.substitute(a:cmd, '\v\C[<>]', cmd_escape_char, 'g').'"'
-  else
-    let cmd = a:cmd
-  endif
   if pipe
     let stdin = join(getline(1, '$'),"\n")
-    let output = system(cmd, stdin)
+    let output = system(a:cmd, stdin)
   else
-    let output = system(cmd)
+    let output = system(a:cmd)
   endif
   if v:shell_error && output !=# ""
     echohl Error | echon output | echohl None
@@ -757,5 +751,13 @@ endfunction
 
 function! s:winshell() abort
   return &shell =~? 'cmd' || exists('+shellslash') && !&shellslash
+endfunction
+
+function! s:escape(str)
+  if s:winshell()
+    let cmd_escape_char = &shellxquote == '(' ?  '^' : '^^^'
+    return substitute(a:str, '\v\C[<>]', cmd_escape_char, 'g')
+  endif
+  return a:str
 endfunction
 " vim:set et sw=2 ts=2 tw=78:
