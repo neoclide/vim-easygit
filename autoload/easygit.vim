@@ -222,6 +222,23 @@ function! easygit#diffShow(args, ...) abort
   call setpos('.', [bufnr('%'), 0, 0, 0])
 endfunction
 
+" Show diff content in preview window
+function! easygit#diffPreview(args) abort
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let old_cwd = getcwd()
+  execute 'silent lcd '. root
+  let command = 'git --no-pager diff --no-color ' . a:args
+  let temp = fnamemodify(tempname(), ":h") . "/" . fnamemodify(s:findObject(a:args), ':t')
+  let cmd = ':silent !git --no-pager diff --no-color ' . a:args . ' > ' . temp . ' 2>&1'
+   execute cmd
+  execute 'silent lcd '. old_cwd
+  silent execute 'pedit! ' . fnameescape(temp)
+  wincmd P
+  setl filetype=git foldmethod=syntax foldlevel=99
+  setl foldtext=easygit#foldtext()
+endfunction
+
 " Commit current file with message
 function! easygit#commitCurrent(args) abort
   if !len(a:args)

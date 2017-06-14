@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.5.0
-Last Change	: Feb 06, 2017
+Version		: 0.5.1
+Last Change	: Jun 14, 2017
 
 License : MIT license {{{
 
@@ -376,6 +376,10 @@ easygit#grep({args})					*easygit#grep*
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
+
+0.5.1   2017-06-14
+
+	- add easygit#diffPreview function
 
 0.5.0   2017-02-06
 
