@@ -747,7 +747,7 @@ function! easygit#dispatch(name, args)
   if !has('gui_running')
     let pre = exists(':Nrun') ? 'Nrun ' : '!'
     if has('nvim') && pre ==# '!'
-      let pre = ':terminal'
+      let pre = ':terminal '
     endif
     exe 'lcd ' . root
     exe pre . cmd
