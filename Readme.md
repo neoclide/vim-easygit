@@ -1,5 +1,9 @@
 # Easygit
 
+[![](http://img.shields.io/github/issues/neoclide/vim-easygit.svg)](https://github.com/neoclide/vim-easygit/issues)
+[![](http://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![](https://img.shields.io/badge/doc-%3Ah%20easygit.txt-red.svg)](doc/easygit.txt)
+
 A git wrapper plugin made to replace [fugitive](https://github.com/tpope/vim-fugitive),
 it can be used together with fugitive as commands are disabled by default.
 
@@ -55,7 +59,3 @@ when arguments empty.
 
 Those commands have reasonable complete setting, use `<tab>` to complete
 commands.
-
-## Full documentation
-
-See [doc/easygit.txt](https://github.com/chemzqm/vim-easygit/blob/master/doc/easygit.txt)
