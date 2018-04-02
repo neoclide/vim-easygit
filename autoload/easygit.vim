@@ -5,6 +5,7 @@
 " Version: 0.2.1
 " Last Modified: Dec 18, 2016
 " ============================================================================
+let s:nomodeline = (v:version > 703 || (v:version == 703 && has('patch442'))) ? '<nomodeline>' : ''
 let s:is_win = has("win32") || has('win64')
 
 " Extract git directory by path
@@ -31,8 +32,8 @@ function! s:FindGitdir(path)
     return substitute(root, '\r\?\n', '', '') . '/.git'
   else
     let dir = finddir('.git', expand(a:path).';')
-    if dir | return fnamemodify(dir, ':p:h') | endif
-    return ''
+    if empty(dir) | return '' | endif
+    return fnamemodify(dir, ':p:h')
   endif
 endfunction
 
@@ -617,14 +618,18 @@ endfunction
 
 " Run git add with files in smartRoot
 function! easygit#add(...) abort
-  if a:0 == 0 | return | endif
   let root = easygit#smartRoot()
   if empty(root) | return | endif
   let cwd = getcwd()
   execute 'lcd ' . root
-  let args = join(map(copy(a:000), 'shellescape(v:val)'), ' ')
-  let command = 'git add ' . join(a:000, ' ')
+  if empty(a:000)
+    let l:args = expand('%')
+  else
+    let l:args = join(map(copy(a:000), 'shellescape(v:val)'), ' ')
+  endif
+  let command = 'git add ' . l:args
   call s:system(command)
+  call s:ResetGutter(bufnr('%'))
   execute 'lcd ' . cwd
 endfunction
 
@@ -634,11 +639,38 @@ function! easygit#status()
   if empty(root) | return | endif
   let cwd = getcwd()
   execute 'lcd ' . root
-  call s:execute('git status --long -b', {
+  call s:execute('git --no-pager status --long -b', {
         \ 'edit': 'edit',
         \ 'title': '__easygit_status__',
         \})
   execute 'lcd ' . cwd
+endfunction
+
+function! easygit#read(args)
+  let root = easygit#smartRoot()
+  if empty(root) | return | endif
+  let old_cwd = getcwd()
+  execute 'lcd ' . root
+  if empty(a:args)
+    let path = expand('%')
+  else
+    let path = a:args
+  endif
+  if empty(path) | return | endif
+  let output = system('git --no-pager show :'.path)
+  if v:shell_error && output !=# ""
+    echohl Error | echon output | echohl None
+    return -1
+  endif
+  execute 'edit ' . path
+  execute '%d'
+  let eol = s:is_win ? '\v\n' : '\v\r?\n'
+  let list = split(output, eol)
+  if len(list)
+    call setline(1, list[0])
+    silent! call append(1, list[1:])
+  endif
+  execute 'lcd ' . old_cwd
 endfunction
 
 function! easygit#merge(args)
@@ -678,7 +710,7 @@ function! s:execute(cmd, option) abort
   let edit = get(a:option, 'edit', 'edit')
   let pipe = get(a:option, 'pipe', 0)
   let bnr = bufnr('%')
-  if edit !~# 'keepalt'
+  if edit !~# 'keepalt' && !get(a:option, 'nokeep', 0)
     let edit = 'keepalt ' . edit
   endif
   if pipe
@@ -788,5 +820,11 @@ function! s:escape(str)
     return substitute(a:str, '\v\C[<>]', cmd_escape_char, 'g')
   endif
   return a:str
+endfunction
+
+function! s:ResetGutter(bufnr)
+  if exists('*gitgutter#process_buffer')
+    call gitgutter#process_buffer(a:bufnr, 1)
+  endif
 endfunction
 " vim:set et sw=2 ts=2 tw=78:
