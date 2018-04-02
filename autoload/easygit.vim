@@ -662,6 +662,7 @@ function! easygit#read(args)
     echohl Error | echon output | echohl None
     return -1
   endif
+  let save_cursor = getcurpos()
   execute 'edit ' . path
   execute '%d'
   let eol = s:is_win ? '\v\n' : '\v\r?\n'
@@ -670,6 +671,8 @@ function! easygit#read(args)
     call setline(1, list[0])
     silent! call append(1, list[1:])
   endif
+  call setpos('.', save_cursor)
+  call s:ResetGutter(bufnr(path))
   execute 'lcd ' . old_cwd
 endfunction
 
