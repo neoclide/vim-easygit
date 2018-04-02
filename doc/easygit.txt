@@ -12,8 +12,8 @@
        : :: ::    :   : :  :: : :       :      :: :: :   :       :    ~
                                      ~
 Author		: Qiming Zhao <chemzqm@gmail.com>
-Version		: 0.5.1
-Last Change	: Jun 14, 2017
+Version		: 0.6.0
+Last Change	: Apr 02, 2018
 
 License : MIT license {{{
 
@@ -222,6 +222,11 @@ with golbal variables.
 
 ------------------------------------------------------------------------------
 
+*g:easygit_enable_root_rev_parse*
+
+	Use `git rev-parse --show-toplevel` to find git root instead of find
+	`.git` directory, it's slower.
+
 *g:easygit_enable_command*
 	Commands are disabled by default to make it works with |fugitive|
 	without any effort.  To enable the commands of easygit, use: >
@@ -376,6 +381,12 @@ easygit#grep({args})					*easygit#grep*
 
 ==============================================================================
 CHANGELOG				*easygit-changelog*
+
+0.6.0   2018-04-02
+	
+	- Use $GIT_DIR or `git rev-parse --show-toplevel` to find git root
+	  directory by default.
+
 
 0.5.1   2017-06-14
 

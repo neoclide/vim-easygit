@@ -20,10 +20,32 @@ function! easygit#gitdir(path, ...) abort
 endfunction
 
 function! s:FindGitdir(path)
-  let dir = finddir('.git', expand(a:path).';')
-  if empty(dir) | return '' | endif
-  return fnamemodify(dir, ':p:h')
+  if !empty($GIT_DIR) | return $GIT_DIR | endif
+  if get(g:, 'easygit_enable_root_rev_parse', 1)
+    let old_cwd = getcwd()
+    let cwd = fnamemodify(a:path, ':p:h')
+    execute 'lcd '.cwd
+    let root = system('git rev-parse --show-toplevel')
+    execute 'lcd '.old_cwd
+    if v:shell_error | return '' | endif
+    return substitute(root, '\r\?\n', '', '') . '/.git'
+  else
+    let dir = finddir('.git', expand(a:path).';')
+    if dir | return fnamemodify(dir, ':p:h') | endif
+    return ''
+  endif
 endfunction
+
+" If cwd inside current file git root, return cwd, otherwise return git root
+function! easygit#smartRoot(...)
+  let suspend = a:0 ? a:1 : 0
+  let gitdir = easygit#gitdir(expand('%'), suspend)
+  if empty(gitdir) | return '' | endif
+  let root = fnamemodify(gitdir, ':h')
+  let cwd = getcwd()
+  return cwd =~# '^' . root ? cwd : root
+endfunction
+
 
 " cd or lcd to base directory of current file's git root
 function! easygit#cd(local) abort
@@ -573,16 +595,6 @@ function! easygit#listRemotes(...)
   let output = s:system('git branch -r | sed ''s:/.*::''|uniq')
   exe 'lcd ' . cwd
   return substitute(output, '\v(^|\n)\zs\s*', '', 'g')
-endfunction
-
-" If cwd inside current file git root, return cwd, otherwise return git root
-function! easygit#smartRoot(...)
-  let suspend = a:0 ? a:1 : 0
-  let gitdir = easygit#gitdir(expand('%'), suspend)
-  if empty(gitdir) | return '' | endif
-  let root = fnamemodify(gitdir, ':h')
-  let cwd = getcwd()
-  return cwd =~# '^' . root ? cwd : root
 endfunction
 
 function! easygit#revert(args)
