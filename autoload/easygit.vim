@@ -12,7 +12,7 @@ let s:is_win = has("win32") || has('win64')
 " if suspend is given as a:1, no error message
 function! easygit#gitdir(path, ...) abort
   let suspend = a:0 && a:1 != 0
-  let path = fnamemodify(a:path , ':p')
+  let path = resolve(fnamemodify(a:path , ':p'))
   let gitdir = s:FindGitdir(path)
   if empty(gitdir) && !suspend
     echohl Error | echon 'Git directory not found' | echohl None

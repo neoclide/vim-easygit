@@ -169,7 +169,7 @@ augroup easygit_auto_lcd
   autocmd!
   if get(g:, 'easygit_auto_lcd', 0)
     autocmd BufWinEnter,BufReadPost * call s:TryGitCd('lcd')
-  elseif get(g:, 'easygit_auto_tcd', 0)
+  elseif get(g:, 'easygit_auto_tcd', 0) && exists(':tcd') == 2
     autocmd BufWinEnter,BufReadPost * call s:TryGitCd('tcd')
   endif
 augroup end
