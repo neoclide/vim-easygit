@@ -713,6 +713,9 @@ function! s:execute(cmd, option) abort
   let edit = get(a:option, 'edit', 'edit')
   let pipe = get(a:option, 'pipe', 0)
   let bnr = bufnr('%')
+  if edit ==# 'pedit'
+    let edit = 'new +setlocal\ previewwindow'
+  endif
   if edit !~# 'keepalt' && !get(a:option, 'nokeep', 0)
     let edit = 'keepalt ' . edit
   endif
