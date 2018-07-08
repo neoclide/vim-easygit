@@ -801,6 +801,7 @@ function! easygit#dispatch(name, args)
     endif
     exe 'lcd ' . root
     exe pre . cmd
+    exe 'nnoremap <buffer> <silent> q :bd!<cr>'
     exe 'lcd ' . cwd
   else
     let title = 'easygit-' . a:name
